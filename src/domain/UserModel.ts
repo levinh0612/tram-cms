@@ -1,9 +1,10 @@
 export interface UserModel {
   id: number;
+  fullname: string,
   firstName: string;
   lastName: string;
   imgUrl: string;
-  userName: string;
+  username: string;
   email: {
     name: string;
     verified: boolean;
@@ -17,6 +18,7 @@ export interface UserModel {
   lang: 'en' | 'de';
   country: string;
   city: string;
+  address: string;
   address1: string;
   address2?: string;
   zipcode: number;
@@ -26,4 +28,5 @@ export interface UserModel {
     facebook?: string;
     linkedin?: string;
   };
+  token: string;
 }

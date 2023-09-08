@@ -1,16 +1,24 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { BasicTableRow, getBasicTableData, Pagination, Tag } from 'api/table.api';
+import { BasicTableRow, getBasicTableData, Pagination, Tag, lockUnlockUser } from 'api/table.api';
 import { BaseTable } from '@app/components/common/BaseTable/BaseTable';
 import { ColumnsType } from 'antd/es/table';
 import { BaseButton } from '@app/components/common/BaseButton/BaseButton';
 import { useTranslation } from 'react-i18next';
-import { defineColorByPriority } from '@app/utils/utils';
+import { defineColorByPriority, defineColorByStatus, urlDefaultImgDriver, vietsub } from '@app/utils/utils';
 import { notificationController } from 'controllers/notificationController';
 import { Status } from '@app/components/profile/profileCard/profileFormNav/nav/payments/paymentHistory/Status/Status';
 import { useMounted } from '@app/hooks/useMounted';
 import { BaseRow } from '@app/components/common/BaseRow/BaseRow';
 import { BaseCol } from '@app/components/common/BaseCol/BaseCol';
 import { BaseSpace } from '@app/components/common/BaseSpace/BaseSpace';
+import { BaseModal } from '@app/components/common/BaseModal/BaseModal';
+import { BaseAvatar } from '@app/components/common/BaseAvatar/BaseAvatar';
+import { useResponsive } from '@app/hooks/useResponsive';
+import { BaseTypography } from '@app/components/common/BaseTypography/BaseTypography';
+import { ManOutlined, WomanOutlined } from '@ant-design/icons';
+import { BaseCard } from '@app/components/common/BaseCard/BaseCard';
+import { StepForm } from '@app/components/forms/Driver/StepForm';
+import { StepsProps } from 'antd';
 
 const initialPagination: Pagination = {
   current: 1,
@@ -25,18 +33,64 @@ export const BasicTable: React.FC = () => {
   });
   const { t } = useTranslation();
   const { isMounted } = useMounted();
+  const { mobileOnly } = useResponsive();
 
+  const [openDialogConfirm, setOpenDialogConfirm] = useState<boolean>(false);
+  const [modeCreate, setModeCreate] = useState<boolean>(false);
+  const [choosenRecord, setChoosenRecord] = useState<BasicTableRow | undefined>();
   const fetch = useCallback(
     (pagination: Pagination) => {
       setTableData((tableData) => ({ ...tableData, loading: true }));
       getBasicTableData(pagination).then((res) => {
+        const rs = res.data;
         if (isMounted.current) {
-          setTableData({ data: res.data, pagination: res.pagination, loading: false });
+          setTableData({ data: rs.data, pagination: rs.pagination, loading: false });
         }
-      });
+      }).catch(err => {
+        BaseModal.error({
+          title: "Có lỗi xảy ra",
+          content: err,
+          onOk: () => {
+            setTableData({ ...tableData, loading: false });
+          }
+        });
+      })
     },
     [isMounted],
   );
+
+  const apiLockUnlock =
+    () => {
+      let action = "";
+      const id = choosenRecord?.key;
+      if (choosenRecord?.is_locked === 0) {
+        action = 'lock';
+      } else {
+        action = 'unlock';
+      }
+
+      setTableData((tableData) => ({ ...tableData, loading: true }));
+      lockUnlockUser(action, id).then((res) => {
+        const rs = res.data;
+        if (isMounted.current) {
+
+          setTableData({ ...tableData, loading: false });
+          notificationController.success({
+            message: 'Chúc mừng bạn',
+            description: choosenRecord?.is_locked === 0 ? `Đã khoá thành công tài xế ${rs}` : `Đã mở khoá thành công tài xế ${rs}`,
+          });
+          fetch(tableData.pagination);
+          setOpenDialogConfirm(false);
+
+        }
+      }).catch(err => {
+        notificationController.error({ message: err.message });
+        setTableData({ ...tableData, loading: false });
+        setOpenDialogConfirm(false)
+
+      })
+    }
+  
 
   useEffect(() => {
     fetch(initialPagination);
@@ -45,6 +99,11 @@ export const BasicTable: React.FC = () => {
   const handleTableChange = (pagination: Pagination) => {
     fetch(pagination);
   };
+
+  const handleSuccessCreate = () => {
+    setModeCreate(false)
+    fetch(initialPagination);
+  }
 
   const handleDeleteRow = (rowId: number) => {
     setTableData({
@@ -61,76 +120,76 @@ export const BasicTable: React.FC = () => {
     {
       title: t('common.name'),
       dataIndex: 'name',
-      render: (text: string) => <span>{text}</span>,
-      filterMode: 'tree',
-      filterSearch: true,
-      filters: [
-        {
-          text: t('common.firstName'),
-          value: 'firstName',
-          children: [
-            {
-              text: 'Joe',
-              value: 'Joe',
-            },
-            {
-              text: 'Pavel',
-              value: 'Pavel',
-            },
-            {
-              text: 'Jim',
-              value: 'Jim',
-            },
-            {
-              text: 'Josh',
-              value: 'Josh',
-            },
-          ],
-        },
-        {
-          text: t('common.lastName'),
-          value: 'lastName',
-          children: [
-            {
-              text: 'Green',
-              value: 'Green',
-            },
-            {
-              text: 'Black',
-              value: 'Black',
-            },
-            {
-              text: 'Brown',
-              value: 'Brown',
-            },
-          ],
-        },
-      ],
-      onFilter: (value: string | number | boolean, record: BasicTableRow) => record.name.includes(value.toString()),
+      render: (text: string, record: BasicTableRow) => {
+        return (
+          <BaseRow style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center' }}>
+            <BaseCol>
+              <BaseAvatar src={record?.image || urlDefaultImgDriver} alt="user avatar" size={mobileOnly ? 49 : 67} />
+            </BaseCol>
+            <BaseCol>
+              <BaseTypography style={{ whiteSpace: 'nowrap' }}>{text}</BaseTypography>
+            </BaseCol>
+          </BaseRow>
+        )
+      },
     },
     {
       title: t('common.age'),
       dataIndex: 'age',
       sorter: (a: BasicTableRow, b: BasicTableRow) => a.age - b.age,
       showSorterTooltip: false,
+      render(value, record, index) {
+          return (
+            <BaseRow style={{display: 'flex', justifyContent: 'space-around', alignItems: 'center'}}>
+              <BaseCol>{value}</BaseCol>
+              <BaseCol>
+              {
+                record?.gender === 'female' ? (
+                  <ManOutlined style={{ color: 'blue'}}/>
+                ) : (
+                  <WomanOutlined style={{ color: 'pink'}}/>
+                )
+              }
+              </BaseCol>
+            </BaseRow>
+          )
+      },
+    },
+    {
+      title: t('common.phone'),
+      dataIndex: 'phone',
+    },
+    {
+      title: t('common.numberPlate'),
+      dataIndex: 'number_plate',
+      render: (text: string) => <span style={{ whiteSpace: 'nowrap' }}>{text}</span>,
+
+    },
+    {
+      title: t('common.email'),
+      dataIndex: 'email',
     },
     {
       title: t('common.address'),
       dataIndex: 'address',
     },
     {
-      title: t('common.tags'),
-      key: 'tags',
-      dataIndex: 'tags',
-      render: (tags: Tag[]) => (
+      title: t('common.status'),
+      key: 'status',
+      dataIndex: 'status',
+      render: (status: any, record: BasicTableRow) => (
         <BaseRow gutter={[10, 10]}>
-          {tags.map((tag: Tag) => {
-            return (
-              <BaseCol key={tag.value}>
-                <Status color={defineColorByPriority(tag.priority)} text={tag.value.toUpperCase()} />
-              </BaseCol>
-            );
-          })}
+          <BaseCol >
+            {
+              record.is_locked === 1 ? (
+                <Status color={"red"} text={"Bị khoá"} />
+              ) : (
+
+                <Status color={defineColorByStatus(status)} text={t(`tables.status.${status}`).toUpperCase()} />
+              )
+            }
+          </BaseCol>
+
         </BaseRow>
       ),
     },
@@ -138,20 +197,37 @@ export const BasicTable: React.FC = () => {
       title: t('tables.actions'),
       dataIndex: 'actions',
       width: '15%',
-      render: (text: string, record: { name: string; key: number }) => {
+      render: (text: string, record: BasicTableRow) => {
         return (
           <BaseSpace>
-            <BaseButton
-              type="ghost"
-              onClick={() => {
-                notificationController.info({ message: t('tables.inviteMessage', { name: record.name }) });
-              }}
-            >
-              {t('tables.invite')}
-            </BaseButton>
-            <BaseButton type="default" danger onClick={() => handleDeleteRow(record.key)}>
+            {
+              record.is_locked === 0 ? (
+                <BaseButton
+                  type="ghost"
+                  danger
+                  onClick={() => {
+                    setChoosenRecord(record)
+                    setOpenDialogConfirm(true)
+                  }}
+                >
+                  Khoá
+                </BaseButton>
+              ) : (
+                <BaseButton
+                  type="ghost"
+                  onClick={() => {
+                    setChoosenRecord(record)
+                    setOpenDialogConfirm(true)
+                  }}
+                >
+                  Mở khoá
+                </BaseButton>
+              )
+
+            }
+            {/* <BaseButton type="default" danger onClick={() => handleDeleteRow(record.key)}>
               {t('tables.delete')}
-            </BaseButton>
+            </BaseButton> */}
           </BaseSpace>
         );
       },
@@ -159,14 +235,57 @@ export const BasicTable: React.FC = () => {
   ];
 
   return (
-    <BaseTable
-      columns={columns}
-      dataSource={tableData.data}
-      pagination={tableData.pagination}
-      loading={tableData.loading}
-      onChange={handleTableChange}
-      scroll={{ x: 800 }}
-      bordered
-    />
+    <>
+      {
+        openDialogConfirm && (
+          <BaseModal
+            size='small'
+            style={{ color: choosenRecord?.is_locked === 0 ? 'red' : '' }}
+            title={"Bạn có chắc"}
+            centered
+            open={openDialogConfirm}
+            okText={"Đồng ý"}
+            cancelText={"Hủy"}
+            onOk={apiLockUnlock}
+            onCancel={() => setOpenDialogConfirm(false)}
+          >
+            <p>{choosenRecord?.is_locked === 0 ? "Khoá" : "Mở khoá"} {choosenRecord?.name}</p>
+
+          </BaseModal>
+        )
+      }
+      {
+        modeCreate && (
+          <BaseModal
+            size='medium'
+            title={'Tạo tài xế'}
+            centered
+            open={modeCreate}
+            onCancel={() => setModeCreate(false)}
+            okButtonProps={{ hidden: true }}
+            cancelButtonProps={{ hidden: true }}
+            // onOk={() => handleCreateUser()}
+            // onCancel={() => setModeCreate(false)}
+          >
+            <BaseCard id="driver-form" title={'Điền thông tin tài xế'} padding="1.25rem">
+                <StepForm handleSuccessCreate={handleSuccessCreate}/>
+              </BaseCard>
+          </BaseModal>
+        )
+      }
+
+      <BaseSpace style={{ margin: '8px', display: 'flex', justifyContent: 'flex-end' }}>
+        <BaseButton type='primary' onClick={() => setModeCreate(true)}>Thêm</BaseButton>
+      </BaseSpace>
+      <BaseTable
+        columns={columns}
+        dataSource={tableData.data}
+        pagination={tableData.pagination}
+        loading={tableData.loading}
+        onChange={handleTableChange}
+        scroll={{ x: 800 }}
+        bordered
+      />
+    </>
   );
 };

@@ -24,17 +24,17 @@ const MedicalDashboardPage: React.FC = () => {
             <TrendingCreators />
           </BaseCol>
 
-          <BaseCol span={24}>
+          {/* <BaseCol span={24}>
             <RecentlyAddedNft />
-          </BaseCol>
+          </BaseCol> */}
 
           <BaseCol span={24}>
             <TrendingCollections />
           </BaseCol>
 
-          <BaseCol span={24}>
+          {/* <BaseCol span={24}>
             <RecentActivity />
-          </BaseCol>
+          </BaseCol> */}
         </BaseRow>
         <References />
       </S.LeftSideCol>
@@ -61,23 +61,23 @@ const MedicalDashboardPage: React.FC = () => {
         <TrendingCreators />
       </BaseCol>
 
-      <BaseCol span={24}>
+      {/* <BaseCol span={24}>
         <RecentlyAddedNft />
-      </BaseCol>
+      </BaseCol> */}
 
       <BaseCol span={24}>
         <TrendingCollections />
       </BaseCol>
 
-      <BaseCol span={24}>
+      {/* <BaseCol span={24}>
         <RecentActivity />
-      </BaseCol>
+      </BaseCol> */}
     </BaseRow>
   );
 
   return (
     <>
-      <PageTitle>NFT Dashboard</PageTitle>
+      <PageTitle>Thống kê</PageTitle>
       {isDesktop ? desktopLayout : mobileAndTabletLayout}
     </>
   );

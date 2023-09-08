@@ -6,6 +6,7 @@ import maestro from '@app/assets/images/card-issuers/maestro.png';
 import { CurrencyTypeEnum, Severity } from '@app/interfaces/interfaces';
 import { BaseBadgeProps } from '@app/components/common/BaseBadge/BaseBadge';
 import { currencies } from '@app/constants/config/currencies';
+import defaultDriverImage from '@app/assets/images/default-driver.png';
 
 export const camelize = (string: string): string => {
   return string
@@ -64,6 +65,39 @@ export const defineColorByPriority = (priority: Priority): string => {
       return 'var(--success-color)';
   }
 };
+export const defineColorByStatus = (status: string): string => {
+  switch (status) {
+    case "online":
+      return 'var(--success-color)';
+    case "offline":
+      return 'var(--warning-color)';
+    case "quit":
+      return 'var(--error-color)';
+    default:
+      return 'var(--primary-color)';
+  }
+};
+
+export const urlDefaultImgDriver = defaultDriverImage;
+
+export const vietsub = (str: string | undefined): string => {
+  let rs = "";
+  switch (str) {
+    case "female":
+      rs = "Nam"
+      break;
+      case "male":
+        rs = "Nữ"
+        break;
+        case "other":
+        rs = "Khác"
+        break;
+    default:
+      rs = ""
+      break;
+  }
+  return rs;
+}
 
 export const defineColorBySeverity = (severity: NotificationType | undefined, rgb = false): string => {
   const postfix = rgb ? 'rgb-color' : 'color';

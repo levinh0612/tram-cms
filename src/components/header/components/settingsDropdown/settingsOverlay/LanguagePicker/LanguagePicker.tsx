@@ -11,6 +11,12 @@ export const LanguagePicker: React.FC = () => {
   return (
     <BaseRadio.Group defaultValue={language} onChange={(e) => setLanguage(e.target.value)}>
       <BaseSpace direction="vertical">
+        <RadioBtn value="vi">
+          <BaseSpace align="center">
+            Viet Nam
+            <ReactCountryFlag svg countryCode="VN" />
+          </BaseSpace>
+        </RadioBtn>
         <RadioBtn value="en">
           <BaseSpace align="center">
             English

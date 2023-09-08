@@ -32,6 +32,7 @@ interface PersonalInfoFormValues {
   address2: string;
   nickName: string;
   address1: string;
+  address: string;
   sex?: string;
   facebook: string;
   language?: string;
@@ -54,6 +55,7 @@ const initialPersonalInfoValues: PersonalInfoFormValues = {
   email: '',
   country: undefined,
   city: undefined,
+  address: '',
   address1: '',
   address2: '',
   zipcode: '',
@@ -73,11 +75,12 @@ export const PersonalInfo: React.FC = () => {
     () =>
       user
         ? {
+            fullname: user.fullname,
             firstName: user.firstName,
             lastName: user.lastName,
             email: user.email.name,
             phone: user.phone.number,
-            nickname: user.userName,
+            nickname: user.username,
             sex: user.sex,
             birthday: Dates.getDate(user.birthday),
             language: user.lang,

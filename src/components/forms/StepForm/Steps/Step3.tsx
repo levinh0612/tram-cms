@@ -9,8 +9,8 @@ export const Step3: React.FC = () => {
   return (
     <S.FormContent>
       <BaseForm.Item
-        name="address1"
-        label={`${t('common.address')} 1`}
+        name="address"
+        label={`${t('common.address')}`}
         rules={[{ required: true, message: t('forms.stepFormLabels.addressError') }]}
       >
         <BaseInput />

@@ -1,5 +1,5 @@
 import { httpApi } from '@app/api/http.api';
-import './mocks/auth.api.mock';
+// import './mocks/auth.api.mock';
 import { UserModel } from '@app/domain/UserModel';
 
 export interface AuthData {
@@ -27,17 +27,23 @@ export interface NewPasswordData {
 }
 
 export interface LoginRequest {
-  email: string;
+  username: string;
   password: string;
 }
 
-export interface LoginResponse {
-  token: string;
+export interface loginData {
+  msg: string,
   user: UserModel;
+}
+export interface LoginResponse {
+  success: boolean;
+  data: loginData;
 }
 
 export const login = (loginPayload: LoginRequest): Promise<LoginResponse> =>
-  httpApi.post<LoginResponse>('login', { ...loginPayload }).then(({ data }) => data);
+  httpApi.post<LoginResponse>('api/auth/login', { ...loginPayload }).then(({ data }) => {
+    return data;
+  });
 
 export const signUp = (signUpData: SignUpRequest): Promise<undefined> =>
   httpApi.post<undefined>('signUp', { ...signUpData }).then(({ data }) => data);

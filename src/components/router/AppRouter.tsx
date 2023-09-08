@@ -19,6 +19,8 @@ import MedicalDashboardPage from '@app/pages/DashboardPages/MedicalDashboardPage
 
 const NewsFeedPage = React.lazy(() => import('@app/pages/NewsFeedPage'));
 const DataTablesPage = React.lazy(() => import('@app/pages/DataTablesPage'));
+const DriversPage = React.lazy(() => import('@app/pages/drivers/Dashboard'));
+// define DriverPage
 const ChartsPage = React.lazy(() => import('@app/pages/ChartsPage'));
 const ServerErrorPage = React.lazy(() => import('@app/pages/ServerErrorPage'));
 const Error404Page = React.lazy(() => import('@app/pages/Error404Page'));
@@ -98,6 +100,10 @@ const NotificationsUI = withLoading(NotificationsUIPage);
 const Skeletons = withLoading(SkeletonsPage);
 
 const DataTables = withLoading(DataTablesPage);
+
+const Drivers = withLoading(DriversPage);
+// difine Drivers 
+
 const Charts = withLoading(ChartsPage);
 
 // Maps
@@ -138,6 +144,10 @@ export const AppRouter: React.FC = () => {
             <Route path="advanced-forms" element={<AdvancedForm />} />
           </Route>
           <Route path="data-tables" element={<DataTables />} />
+
+          <Route path='drivers' element ={<Drivers />} /> 
+          {/* define router for drivers */}
+
           <Route path="charts" element={<Charts />} />
           <Route path="maps">
             <Route path="google-maps" element={<Google />} />
