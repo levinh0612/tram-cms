@@ -17,7 +17,7 @@ const testUser = {
   },
   sex: 'male',
   birthday: '01/26/2022',
-  lang: 'en',
+  lang: 'vi',
   country: 'GB',
   city: 'London',
   address1: '14 London Road',

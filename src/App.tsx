@@ -3,6 +3,7 @@ import { ConfigProvider } from 'antd';
 import { HelmetProvider } from 'react-helmet-async';
 import deDe from 'antd/lib/locale/de_DE';
 import enUS from 'antd/lib/locale/en_US';
+import viVI from 'antd/lib/locale/vi_VN';
 import GlobalStyle from './styles/GlobalStyle';
 import 'typeface-montserrat';
 import 'typeface-lato';
@@ -29,7 +30,7 @@ const App: React.FC = () => {
       <meta name="theme-color" content={themeObject[theme].primary} />
       <GlobalStyle />
       <HelmetProvider>
-        <ConfigProvider locale={language === 'en' ? enUS : deDe}>
+        <ConfigProvider locale={language === 'vi' ? viVI : enUS}>
           <AppRouter />
         </ConfigProvider>
       </HelmetProvider>

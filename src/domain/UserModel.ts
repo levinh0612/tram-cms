@@ -15,7 +15,7 @@ export interface UserModel {
   };
   sex: 'male' | 'female';
   birthday: string;
-  lang: 'en' | 'de';
+  lang: 'en' | 'de' | 'vi';
   country: string;
   city: string;
   address: string;
