@@ -5,18 +5,33 @@ export interface Tag {
   priority: Priority;
 }
 
+export interface Car {
+  id: number;
+  name: string;
+  number_plate: string;
+  created_at: string;
+  is_locked: number;
+  updated_at: string | null;
+}
 
-export interface BasicTableRow {
+export interface DriverTableRow {
   key: number;
   name: string;
   age: number;
   address: string;
   tags?: Tag[];
   number_plate?: string;
+  name_car?: string;
   status?: string;
   is_locked?: number;
   image?: string;
   gender?: string;
+}
+export interface CarTableRow {
+  key: number;
+  name: string;
+  number_plate?: string;
+  is_locked?: number;
 }
 export interface PayloadCreateUser {
   lastname?: string;
@@ -29,6 +44,13 @@ export interface PayloadCreateUser {
 
 }
 
+export interface PayloadCreateCar {
+  name?: string;
+  numberPlate?: string;
+  [key: string]: string | undefined; // Add an index signature
+
+}
+
 export interface Pagination {
   current?: number;
   pageSize?: number;
@@ -36,12 +58,13 @@ export interface Pagination {
 }
 
 export interface BasicTableData {
-  data: BasicTableRow[];
+  data: DriverTableRow[];
+  options?: [];
   pagination: Pagination;
   msg?: string;
 }
 
-export interface TreeTableRow extends BasicTableRow {
+export interface TreeTableRow extends DriverTableRow {
   children?: TreeTableRow[];
 }
 
@@ -50,7 +73,7 @@ export interface TreeTableData extends BasicTableData {
 }
 
 export interface EditableTableData extends BasicTableData {
-  data: BasicTableRow[];
+  data: DriverTableRow[];
 }
 
 export interface Response {
@@ -67,6 +90,35 @@ export const getBasicTableData = (pagination: Pagination): Promise<Response> => 
     })
   });
 };
+
+export const getCarTableData = (pagination: Pagination): Promise<Response> => {
+  return new Promise((res, rej) => {
+    httpApi.post<Response>('api/car', { ...pagination }).then(({ data }) => {
+      return res(data);
+    }).catch(err => {
+      return rej(err);
+    })
+  });
+};
+export const listToAssign = (): Promise<Response> => {
+  return new Promise((res, rej) => {
+    httpApi.post<Response>('api/car/listToAssign', {  }).then(({ data }) => {
+      return res(data);
+    }).catch(err => {
+      return rej(err);
+    })
+  });
+};
+export const assignCar = (car: Car, user: DriverTableRow): Promise<Response> => {
+  return new Promise((res, rej) => {
+    httpApi.post<Response>('api/car/assignCar', { car, user }).then(({ data }) => {
+      return res(data);
+    }).catch(err => {
+      return rej(err);
+    })
+  });
+};
+
 export const lockUnlockUser = (action: string, id: number | undefined): Promise<Response> => {
   return new Promise((res, rej) => {
     httpApi.post<Response>('api/user/lockUnlock', { action, id }).then(({ data }) => {
@@ -77,9 +129,28 @@ export const lockUnlockUser = (action: string, id: number | undefined): Promise<
   });
 };
 
+export const lockUnlockCar = (action: string, id: number | undefined): Promise<Response> => {
+  return new Promise((res, rej) => {
+    httpApi.post<Response>('api/car/lockUnlock', { action, id }).then(({ data }) => {
+      return res(data);
+    }).catch(err => {
+      return rej(err);
+    })
+  });
+};
+
 export const createUser = (payload : PayloadCreateUser): Promise<Response> => {
   return new Promise((res, rej) => {
     httpApi.post<Response>('api/user/create', { ...payload }).then(({ data }) => {
+      return res(data);
+    }).catch(err => {
+      return rej(err);
+    })
+  });
+};
+export const createCar = (payload : PayloadCreateCar): Promise<Response> => {
+  return new Promise((res, rej) => {
+    httpApi.post<Response>('api/car/create', { ...payload }).then(({ data }) => {
       return res(data);
     }).catch(err => {
       return rej(err);

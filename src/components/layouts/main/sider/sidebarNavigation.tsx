@@ -7,6 +7,7 @@ import {
   LayoutOutlined,
   LineChartOutlined,
   TableOutlined,
+  CarOutlined,
   UserOutlined,
   BlockOutlined,
 } from '@ant-design/icons';
@@ -105,7 +106,13 @@ export const sidebarNavigation: SidebarNavigationItem[] = [
     title: 'common.drivers',
     key: 'drivers',
     url: '/drivers',
-    icon: <TableOutlined />,
+    icon: <UserOutlined />,
+  },
+  {
+    title: 'common.cars',
+    key: 'cars',
+    url: '/cars',
+    icon: <CarOutlined />,
   },
   {
     title: 'common.charts',

@@ -26,6 +26,10 @@ export const Table = styled(AntdTable)`
     margin-top: 0;
   }
 
+  .ant-table-tbody>tr.ant-table-row:hover>td {background: #fff !important; color: #000 !important;}
+
+  .ant-table-header th {background: #1890ff !important; color: #fff !important;}
+
   // Override default antd selector
   &
     .ant-table-thead

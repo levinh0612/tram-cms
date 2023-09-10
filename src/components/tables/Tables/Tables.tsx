@@ -1,5 +1,5 @@
 import React from 'react';
-import { BasicTable } from '../BasicTable/BasicTable';
+import { BasicTable } from '../driver/Table';
 import { TreeTable } from '../TreeTable/TreeTable';
 import { EditableTable } from '../editableTable/EditableTable';
 import { useTranslation } from 'react-i18next';

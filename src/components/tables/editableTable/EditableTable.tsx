@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { BaseTable } from '@app/components/common/BaseTable/BaseTable';
-import { getEditableTableData, BasicTableRow, Pagination } from 'api/table.api';
+import { getEditableTableData, DriverTableRow, Pagination } from 'api/table.api';
 import { EditableCell } from './EditableCell';
 import { BaseButton } from '@app/components/common/BaseButton/BaseButton';
 import { useTranslation } from 'react-i18next';
@@ -16,7 +16,7 @@ const initialPagination: Pagination = {
 
 export const EditableTable: React.FC = () => {
   const [form] = BaseForm.useForm();
-  const [tableData, setTableData] = useState<{ data: BasicTableRow[]; pagination: Pagination; loading: boolean }>({
+  const [tableData, setTableData] = useState<{ data: DriverTableRow[]; pagination: Pagination; loading: boolean }>({
     data: [],
     pagination: initialPagination,
     loading: false,
@@ -46,9 +46,9 @@ export const EditableTable: React.FC = () => {
     cancel();
   };
 
-  const isEditing = (record: BasicTableRow) => record.key === editingKey;
+  const isEditing = (record: DriverTableRow) => record.key === editingKey;
 
-  const edit = (record: Partial<BasicTableRow> & { key: React.Key }) => {
+  const edit = (record: Partial<DriverTableRow> & { key: React.Key }) => {
     form.setFieldsValue({ name: '', age: '', address: '', ...record });
     setEditingKey(record.key);
   };
@@ -59,7 +59,7 @@ export const EditableTable: React.FC = () => {
 
   const save = async (key: React.Key) => {
     try {
-      const row = (await form.validateFields()) as BasicTableRow;
+      const row = (await form.validateFields()) as DriverTableRow;
 
       const newData = [...tableData.data];
       const index = newData.findIndex((item) => key === item.key);
@@ -106,7 +106,7 @@ export const EditableTable: React.FC = () => {
       title: t('tables.actions'),
       dataIndex: 'actions',
       width: '15%',
-      render: (text: string, record: BasicTableRow) => {
+      render: (text: string, record: DriverTableRow) => {
         const editable = isEditing(record);
         return (
           <BaseSpace>
@@ -141,7 +141,7 @@ export const EditableTable: React.FC = () => {
     }
     return {
       ...col,
-      onCell: (record: BasicTableRow) => ({
+      onCell: (record: DriverTableRow) => ({
         record,
         inputType: col.dataIndex === 'age' ? 'number' : 'text',
         dataIndex: col.dataIndex,

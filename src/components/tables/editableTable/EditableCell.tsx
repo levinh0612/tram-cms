@@ -1,5 +1,5 @@
 import React from 'react';
-import { BasicTableRow } from '@app/api/table.api';
+import { DriverTableRow } from '@app/api/table.api';
 import { InputNumber } from '@app/components/common/inputs/InputNumber/InputNumber';
 import { BaseInput } from '@app/components/common/inputs/BaseInput/BaseInput';
 import { BaseForm } from '@app/components/common/forms/BaseForm/BaseForm';
@@ -9,7 +9,7 @@ interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
   dataIndex: string;
   title: string;
   inputType: 'number' | 'text';
-  record: BasicTableRow;
+  record: DriverTableRow;
   index: number;
   children: React.ReactNode;
 }

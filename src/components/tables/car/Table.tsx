@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { BasicTableRow, getBasicTableData, Pagination, Tag, lockUnlockUser } from 'api/table.api';
+import { CarTableRow, getBasicTableData, getCarTableData, Pagination, Tag, lockUnlockCar } from 'api/table.api';
 import { BaseTable } from '@app/components/common/BaseTable/BaseTable';
 import { ColumnsType } from 'antd/es/table';
 import { BaseButton } from '@app/components/common/BaseButton/BaseButton';
@@ -15,18 +15,22 @@ import { BaseModal } from '@app/components/common/BaseModal/BaseModal';
 import { BaseAvatar } from '@app/components/common/BaseAvatar/BaseAvatar';
 import { useResponsive } from '@app/hooks/useResponsive';
 import { BaseTypography } from '@app/components/common/BaseTypography/BaseTypography';
-import { ManOutlined, WomanOutlined } from '@ant-design/icons';
+import { ManOutlined, UserOutlined, WomanOutlined } from '@ant-design/icons';
 import { BaseCard } from '@app/components/common/BaseCard/BaseCard';
-import { StepForm } from '@app/components/forms/Driver/StepForm';
-import { StepsProps } from 'antd';
+import { StepForm } from '@app/components/forms/Car/StepForm';
+import { BaseForm } from '@app/components/common/forms/BaseForm/BaseForm';
+import { BasePopconfirm } from '@app/components/common/BasePopconfirm/BasePopconfirm';
+import { BaseAutoComplete } from '@app/components/common/BaseAutoComplete/BaseAutoComplete';
+import { SearchInput } from '@app/components/common/inputs/SearchInput/SearchInput.styles';
+import styled from 'styled-components';
 
 const initialPagination: Pagination = {
   current: 1,
   pageSize: 5,
 };
 
-export const BasicTable: React.FC = () => {
-  const [tableData, setTableData] = useState<{ data: BasicTableRow[]; pagination: Pagination; loading: boolean }>({
+export const Table: React.FC = () => {
+  const [tableData, setTableData] = useState<{ data: CarTableRow[]; pagination: Pagination; loading: boolean }>({
     data: [],
     pagination: initialPagination,
     loading: false,
@@ -34,14 +38,15 @@ export const BasicTable: React.FC = () => {
   const { t } = useTranslation();
   const { isMounted } = useMounted();
   const { mobileOnly } = useResponsive();
-
+  const [editingKey, setEditingKey] = useState(0);
+  const [form] = BaseForm.useForm();
   const [openDialogConfirm, setOpenDialogConfirm] = useState<boolean>(false);
   const [modeCreate, setModeCreate] = useState<boolean>(false);
-  const [choosenRecord, setChoosenRecord] = useState<BasicTableRow | undefined>();
+  const [choosenRecord, setChoosenRecord] = useState<CarTableRow | undefined>();
   const fetch = useCallback(
     (pagination: Pagination) => {
       setTableData((tableData) => ({ ...tableData, loading: true }));
-      getBasicTableData(pagination).then((res) => {
+      getCarTableData(pagination).then((res) => {
         const rs = res.data;
         if (isMounted.current) {
           setTableData({ data: rs.data, pagination: rs.pagination, loading: false });
@@ -59,6 +64,53 @@ export const BasicTable: React.FC = () => {
     [isMounted],
   );
 
+  const CategoryWrapper = styled.div`
+  display: flex;
+  justify-content: space-between;
+`;
+  const Link = styled.a`
+float: right;
+`;
+
+  const renderTitle = (title: string) => (
+    <span>
+      {title}
+      <Link href="https://www.google.com/search?q=antd" target="_blank" rel="noopener noreferrer">
+        more
+      </Link>
+    </span>
+  );
+
+  const renderItem = (title: string, count: number) => ({
+    value: title,
+    label: (
+      <CategoryWrapper>
+        {title}
+        <span>
+          <UserOutlined /> {count}
+        </span>
+      </CategoryWrapper>
+    ),
+  });
+
+  const categories = [
+    {
+      label: renderTitle(t('autoCompletes.libraries')),
+      options: [renderItem(t('autoCompletes.antDesign'), 10000), renderItem(t('autoCompletes.antDesignUI'), 10600)],
+    },
+    {
+      label: renderTitle(t('autoCompletes.solutions')),
+      options: [
+        renderItem(t('autoCompletes.antDesignUIFaq'), 60100),
+        renderItem(t('autoCompletes.antDesignFaq'), 30010),
+      ],
+    },
+    {
+      label: renderTitle(t('autoCompletes.articles')),
+      options: [renderItem(t('autoCompletes.antDesignLanguage'), 100000)],
+    },
+  ];
+
   const apiLockUnlock =
     () => {
       let action = "";
@@ -70,14 +122,14 @@ export const BasicTable: React.FC = () => {
       }
 
       setTableData((tableData) => ({ ...tableData, loading: true }));
-      lockUnlockUser(action, id).then((res) => {
+      lockUnlockCar(action, id).then((res) => {
         const rs = res.data;
         if (isMounted.current) {
 
           setTableData({ ...tableData, loading: false });
           notificationController.success({
             message: 'Chúc mừng bạn',
-            description: choosenRecord?.is_locked === 0 ? `Đã khoá thành công tài xế ${rs}` : `Đã mở khoá thành công tài xế ${rs}`,
+            description: choosenRecord?.is_locked === 0 ? `Đã khoá thành công xe ${rs}` : `Đã mở khoá thành công xe ${rs}`,
           });
           fetch(tableData.pagination);
           setOpenDialogConfirm(false);
@@ -90,7 +142,7 @@ export const BasicTable: React.FC = () => {
 
       })
     }
-  
+
 
   useEffect(() => {
     fetch(initialPagination);
@@ -116,76 +168,64 @@ export const BasicTable: React.FC = () => {
     });
   };
 
-  const columns: ColumnsType<BasicTableRow> = [
+  const isEditing = (record: CarTableRow) => record.key === editingKey;
+
+  const edit = (record: Partial<CarTableRow> & { key: React.Key }) => {
+    form.setFieldsValue({ name: '', age: '', address: '', ...record });
+    setEditingKey(record.key);
+  };
+
+  const cancel = () => {
+    setEditingKey(0);
+  };
+
+  const save = async (key: React.Key) => {
+    try {
+      const row = (await form.validateFields()) as CarTableRow;
+
+      const newData = [...tableData.data];
+      const index = newData.findIndex((item) => key === item.key);
+      if (index > -1) {
+        const item = newData[index];
+        newData.splice(index, 1, {
+          ...item,
+          ...row,
+        });
+      } else {
+        newData.push(row);
+      }
+      setTableData({ ...tableData, data: newData });
+      setEditingKey(0);
+    } catch (errInfo) {
+      console.log('Validate Failed:', errInfo);
+    }
+  };
+
+  const columns: ColumnsType<CarTableRow> = [
     {
       title: t('common.name'),
       dataIndex: 'name',
-      render: (text: string, record: BasicTableRow) => {
-        return (
-          <BaseRow style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center' }}>
-            <BaseCol>
-              <BaseAvatar src={record?.image || urlDefaultImgDriver} alt="user avatar" size={mobileOnly ? 49 : 67} />
-            </BaseCol>
-            <BaseCol>
-              <BaseTypography style={{ whiteSpace: 'nowrap' }}>{text}</BaseTypography>
-            </BaseCol>
-          </BaseRow>
-        )
-      },
+      width: 200,
     },
     {
       title: t('common.age'),
-      dataIndex: 'age',
-      sorter: (a: BasicTableRow, b: BasicTableRow) => a.age - b.age,
-      showSorterTooltip: false,
-      render(value, record, index) {
-          return (
-            <BaseRow style={{display: 'flex', justifyContent: 'space-around', alignItems: 'center'}}>
-              <BaseCol>{value}</BaseCol>
-              <BaseCol>
-              {
-                record?.gender === 'female' ? (
-                  <ManOutlined style={{ color: 'blue'}}/>
-                ) : (
-                  <WomanOutlined style={{ color: 'pink'}}/>
-                )
-              }
-              </BaseCol>
-            </BaseRow>
-          )
-      },
-    },
-    {
-      title: t('common.phone'),
-      dataIndex: 'phone',
-    },
-    {
-      title: t('common.numberPlate'),
       dataIndex: 'number_plate',
-      render: (text: string) => <span style={{ whiteSpace: 'nowrap' }}>{text}</span>,
-
-    },
-    {
-      title: t('common.email'),
-      dataIndex: 'email',
-    },
-    {
-      title: t('common.address'),
-      dataIndex: 'address',
+      width: 100,
+      showSorterTooltip: false,
     },
     {
       title: t('common.status'),
       key: 'status',
       dataIndex: 'status',
-      render: (status: any, record: BasicTableRow) => (
+      width: 200,
+      render: (status: any, record: CarTableRow) => (
         <BaseRow gutter={[10, 10]}>
           <BaseCol >
             {
               record.is_locked === 1 ? (
                 <Status color={"red"} text={"Bị khoá"} />
               ) : (
-
-                <Status color={defineColorByStatus(status)} text={t(`tables.status.${status}`).toUpperCase()} />
+                <Status color={"green"} text={"Hoạt động"} />
               )
             }
           </BaseCol>
@@ -196,34 +236,55 @@ export const BasicTable: React.FC = () => {
     {
       title: t('tables.actions'),
       dataIndex: 'actions',
-      width: '15%',
-      render: (text: string, record: BasicTableRow) => {
+      width: 250,
+      render: (text: string, record: CarTableRow) => {
+        const editable = isEditing(record);
+
         return (
           <BaseSpace>
             {
-              record.is_locked === 0 ? (
-                <BaseButton
-                  type="ghost"
-                  danger
-                  onClick={() => {
-                    setChoosenRecord(record)
-                    setOpenDialogConfirm(true)
-                  }}
-                >
-                  Khoá
-                </BaseButton>
+              editable ? (
+                <>
+                  <BaseButton type="primary" onClick={() => save(record.key)}>
+                    Lưu
+                  </BaseButton>
+                  <BasePopconfirm title={'Huỷ'} onConfirm={cancel}>
+                    <BaseButton type="ghost">Huỷ</BaseButton>
+                  </BasePopconfirm>
+                </>
               ) : (
-                <BaseButton
-                  type="ghost"
-                  onClick={() => {
-                    setChoosenRecord(record)
-                    setOpenDialogConfirm(true)
-                  }}
-                >
-                  Mở khoá
-                </BaseButton>
-              )
 
+                <>
+                  {
+                    record.is_locked === 0 ? (
+                      <BaseButton
+                        type="ghost"
+                        danger
+                        onClick={() => {
+                          setChoosenRecord(record)
+                          setOpenDialogConfirm(true)
+                        }}
+                      >
+                        Khoá
+                      </BaseButton>
+                    ) : (
+                      <BaseButton
+                        type="ghost"
+                        onClick={() => {
+                          setChoosenRecord(record)
+                          setOpenDialogConfirm(true)
+                        }}
+                      >
+                        Mở khoá
+                      </BaseButton>
+                    )
+                  }
+                  <BaseButton type="ghost" disabled={editingKey !== 0} onClick={() => edit(record)}>
+                    Cập nhật
+                  </BaseButton>
+                </>
+
+              )
             }
             {/* <BaseButton type="default" danger onClick={() => handleDeleteRow(record.key)}>
               {t('tables.delete')}
@@ -258,18 +319,18 @@ export const BasicTable: React.FC = () => {
         modeCreate && (
           <BaseModal
             size='medium'
-            title={'Tạo tài xế'}
+            title={'Tạo xe'}
             centered
             open={modeCreate}
             onCancel={() => setModeCreate(false)}
             okButtonProps={{ hidden: true }}
             cancelButtonProps={{ hidden: true }}
-            // onOk={() => handleCreateUser()}
-            // onCancel={() => setModeCreate(false)}
+          // onOk={() => handleCreateUser()}
+          // onCancel={() => setModeCreate(false)}
           >
-            <BaseCard id="driver-form" title={'Điền thông tin tài xế'} padding="1.25rem">
-                <StepForm handleSuccessCreate={handleSuccessCreate}/>
-              </BaseCard>
+            <BaseCard id="car-form" title={'Điền thông tin xe'} padding="1.25rem">
+              <StepForm handleSuccessCreate={handleSuccessCreate} />
+            </BaseCard>
           </BaseModal>
         )
       }
@@ -283,7 +344,7 @@ export const BasicTable: React.FC = () => {
         pagination={tableData.pagination}
         loading={tableData.loading}
         onChange={handleTableChange}
-        scroll={{ x: 800 }}
+        scroll={{ x: 800, y: 600 }} 
         bordered
       />
     </>
