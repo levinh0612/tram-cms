@@ -33,6 +33,19 @@ export interface CarTableRow {
   number_plate?: string;
   is_locked?: number;
 }
+
+export interface LocationTableRow {
+  key: number;
+  vi_name: string;
+  en_name: string;
+  is_locked?: number;
+  x?: string;
+  y?: string;
+  z?: string;
+  started_at?: string;
+  closed_at?: string;
+}
+
 export interface PayloadCreateUser {
   lastname?: string;
   firstname?: string;
@@ -51,6 +64,20 @@ export interface PayloadCreateCar {
 
 }
 
+export interface PayloadCreateLocation {
+  viName?: string;
+  enName?: string;
+  startedAt?: string;
+  closedAt?: string;
+  x?: string;
+  y?: string;
+  z?: string;
+  [key: string]: string | undefined; // Add an index signature
+
+}
+
+
+
 export interface Pagination {
   current?: number;
   pageSize?: number;
@@ -58,7 +85,7 @@ export interface Pagination {
 }
 
 export interface BasicTableData {
-  data: DriverTableRow[];
+  data: DriverTableRow[] | CarTableRow[] | LocationTableRow[];
   options?: [];
   pagination: Pagination;
   msg?: string;
@@ -73,12 +100,12 @@ export interface TreeTableData extends BasicTableData {
 }
 
 export interface EditableTableData extends BasicTableData {
-  data: DriverTableRow[];
+  data: DriverTableRow[] | CarTableRow[] | LocationTableRow[];
 }
 
 export interface Response {
   success: boolean;
-  data: BasicTableData;
+  data: any;
 }
 
 export const getBasicTableData = (pagination: Pagination): Promise<Response> => {
@@ -94,6 +121,16 @@ export const getBasicTableData = (pagination: Pagination): Promise<Response> => 
 export const getCarTableData = (pagination: Pagination): Promise<Response> => {
   return new Promise((res, rej) => {
     httpApi.post<Response>('api/car', { ...pagination }).then(({ data }) => {
+      return res(data);
+    }).catch(err => {
+      return rej(err);
+    })
+  });
+};
+
+export const getLocationTableData = (pagination: Pagination): Promise<Response> => {
+  return new Promise((res, rej) => {
+    httpApi.post<Response>('api/location', { ...pagination }).then(({ data }) => {
       return res(data);
     }).catch(err => {
       return rej(err);
@@ -139,6 +176,16 @@ export const lockUnlockCar = (action: string, id: number | undefined): Promise<R
   });
 };
 
+export const lockUnlockLocation = (action: string, id: number | undefined): Promise<Response> => {
+  return new Promise((res, rej) => {
+    httpApi.post<Response>('api/location/lockUnlock', { action, id }).then(({ data }) => {
+      return res(data);
+    }).catch(err => {
+      return rej(err);
+    })
+  });
+};
+
 export const createUser = (payload : PayloadCreateUser): Promise<Response> => {
   return new Promise((res, rej) => {
     httpApi.post<Response>('api/user/create', { ...payload }).then(({ data }) => {
@@ -151,6 +198,15 @@ export const createUser = (payload : PayloadCreateUser): Promise<Response> => {
 export const createCar = (payload : PayloadCreateCar): Promise<Response> => {
   return new Promise((res, rej) => {
     httpApi.post<Response>('api/car/create', { ...payload }).then(({ data }) => {
+      return res(data);
+    }).catch(err => {
+      return rej(err);
+    })
+  });
+};
+export const createLocation = (payload : PayloadCreateLocation): Promise<Response> => {
+  return new Promise((res, rej) => {
+    httpApi.post<Response>('api/location/create', { ...payload }).then(({ data }) => {
       return res(data);
     }).catch(err => {
       return rej(err);

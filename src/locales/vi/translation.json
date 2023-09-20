@@ -113,6 +113,7 @@
     "unchecked": "Chưa chọn"
   },
   "common": {
+    "locations" : "Địa điểm",
     "address": "Địa chỉ",
     "advancedForms": "Advanced Forms",
     "age": "Tuổi",
@@ -147,6 +148,7 @@
     "medical-dashboard": "Medical Dashboard",
     "dataDisplay": "Data display",
     "dataTables": "Data Tables",
+    "locationsList": "Địa điểm",
     "drivers": "Tài xế",
     "cars": "Xe",
     "dateTime": "Date & Time",
@@ -827,6 +829,7 @@
     "basicTable": "Basic Table",
     "driversList" : "Danh sách tài xế",
     "carsList" : "Danh sách xe",
+    "locationsList" : "Danh sách Địa điểm",
     "cancelInfo": "Sure to cancel?",
     "delete": "Delete",
     "editableTable": "Editable Table",

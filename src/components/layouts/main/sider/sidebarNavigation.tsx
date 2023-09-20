@@ -115,6 +115,12 @@ export const sidebarNavigation: SidebarNavigationItem[] = [
     icon: <CarOutlined />,
   },
   {
+    title: 'common.locations',
+    key: 'locations',
+    url: '/locations',
+    icon: <CompassOutlined />,
+  },
+  {
     title: 'common.charts',
     key: 'charts',
     url: '/charts',

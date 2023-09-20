@@ -23,6 +23,8 @@ const DriversPage = React.lazy(() => import('@app/pages/drivers/Dashboard'));
 // define DriverPage
 const CarsPage = React.lazy(() => import('@app/pages/cars/Dashboard'));
 // define DriverPage
+const LocationsPage = React.lazy(() => import('@app/pages/locations/Dashboard'));
+// define DriverPage
 const ChartsPage = React.lazy(() => import('@app/pages/ChartsPage'));
 const ServerErrorPage = React.lazy(() => import('@app/pages/ServerErrorPage'));
 const Error404Page = React.lazy(() => import('@app/pages/Error404Page'));
@@ -109,6 +111,9 @@ const Drivers = withLoading(DriversPage);
 const Cars = withLoading(CarsPage);
 // difine Drivers 
 
+const Locations = withLoading(LocationsPage);
+// difine Drivers 
+
 const Charts = withLoading(ChartsPage);
 
 // Maps
@@ -155,6 +160,9 @@ export const AppRouter: React.FC = () => {
 
           <Route path='cars' element ={<Cars />} /> 
           {/* define router for Cars */}
+
+          <Route path='locations' element ={<Locations />} /> 
+          {/* define router for locations */}
 
           <Route path="charts" element={<Charts />} />
           <Route path="maps">
