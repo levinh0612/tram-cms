@@ -98,7 +98,7 @@ float: right;
   const apiLockUnlock =
     () => {
       let action = "";
-      const id = choosenRecord?.key || choosenRecord?.id;
+      const id = choosenRecord?.key;
       console.log("🚀 ~ file: Table.tsx:102 ~ choosenRecord:", choosenRecord)
       if (choosenRecord?.is_locked === 0) {
         action = 'lock';
