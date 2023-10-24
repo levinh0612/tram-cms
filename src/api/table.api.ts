@@ -27,6 +27,18 @@ export interface DriverTableRow {
   image?: string;
   gender?: string;
 }
+
+export interface StageTableRow {
+  key: number;
+  from_location_id?: number;
+  from_location_name?: string;
+  to_location_id?: number;
+  to_location_name?: string;
+  price?: number;
+  is_locked?: number;
+  locationData?: any;
+}
+
 export interface CarTableRow {
   key: number;
   name: string;
@@ -85,10 +97,11 @@ export interface Pagination {
 }
 
 export interface BasicTableData {
-  data: DriverTableRow[] | CarTableRow[] | LocationTableRow[];
+  data: DriverTableRow[] | CarTableRow[] | LocationTableRow[] | StageTableRow[];
   options?: [];
   pagination: Pagination;
   msg?: string;
+  locationData?: any;
 }
 
 export interface TreeTableRow extends DriverTableRow {
@@ -131,6 +144,15 @@ export const getCarTableData = (pagination: Pagination): Promise<Response> => {
 export const getLocationTableData = (pagination: Pagination): Promise<Response> => {
   return new Promise((res, rej) => {
     httpApi.post<Response>('api/location', { ...pagination }).then(({ data }) => {
+      return res(data);
+    }).catch(err => {
+      return rej(err);
+    })
+  });
+};
+export const getStageTableData = (pagination: Pagination): Promise<Response> => {
+  return new Promise((res, rej) => {
+    httpApi.post<Response>('api/stage', { ...pagination }).then(({ data }) => {
       return res(data);
     }).catch(err => {
       return rej(err);
@@ -207,6 +229,24 @@ export const createCar = (payload : PayloadCreateCar): Promise<Response> => {
 export const createLocation = (payload : PayloadCreateLocation): Promise<Response> => {
   return new Promise((res, rej) => {
     httpApi.post<Response>('api/location/create', { ...payload }).then(({ data }) => {
+      return res(data);
+    }).catch(err => {
+      return rej(err);
+    })
+  });
+};
+export const createStage = (payload : any): Promise<Response> => {
+  return new Promise((res, rej) => {
+    httpApi.post<Response>('api/stage/create', { ...payload }).then(({ data }) => {
+      return res(data);
+    }).catch(err => {
+      return rej(err);
+    })
+  });
+};
+export const editLocation = (payload : any): Promise<Response> => {
+  return new Promise((res, rej) => {
+    httpApi.post<Response>('api/location/edit', { ...payload }).then(({ data }) => {
       return res(data);
     }).catch(err => {
       return rej(err);

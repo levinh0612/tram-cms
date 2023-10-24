@@ -6,7 +6,6 @@ const avatarImg = process.env.REACT_APP_ASSETS_BUCKET + '/avatars/avatar5.webp';
 
 httpApiMock.onPost('api/auth/login').reply((config) => {
   const data: AuthData = JSON.parse(config.data || '');
-  console.log("🚀 ~ file: auth.api.mock.ts:9 ~ httpApiMock.onPost ~ data:", config)
   if (data.password === initValues.password) {
     return [
       200,

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { DriverTableRow, getBasicTableData, Pagination, Tag, lockUnlockUser, listToAssign, Car, assignCar } from 'api/table.api';
+import { CarTableRow, getBasicTableData, getLocationTableData, Pagination, Tag, lockUnlockLocation, StageTableRow, editLocation, getStageTableData } from 'api/table.api';
 import { BaseTable } from '@app/components/common/BaseTable/BaseTable';
 import { ColumnsType } from 'antd/es/table';
 import { BaseButton } from '@app/components/common/BaseButton/BaseButton';
@@ -17,26 +17,26 @@ import { useResponsive } from '@app/hooks/useResponsive';
 import { BaseTypography } from '@app/components/common/BaseTypography/BaseTypography';
 import { ManOutlined, UserOutlined, WomanOutlined } from '@ant-design/icons';
 import { BaseCard } from '@app/components/common/BaseCard/BaseCard';
-import { StepForm } from '@app/components/forms/Driver/StepForm';
-import { Select, StepsProps } from 'antd';
+import { StepForm } from '@app/components/forms/Stage/StepForm';
 import { BaseForm } from '@app/components/common/forms/BaseForm/BaseForm';
 import { BasePopconfirm } from '@app/components/common/BasePopconfirm/BasePopconfirm';
 import { BaseAutoComplete } from '@app/components/common/BaseAutoComplete/BaseAutoComplete';
 import { SearchInput } from '@app/components/common/inputs/SearchInput/SearchInput.styles';
 import styled from 'styled-components';
+import Typography from 'antd/lib/typography/Typography';
+import { BaseInput } from '@app/components/common/inputs/BaseInput/BaseInput';
 
 const initialPagination: Pagination = {
   current: 1,
   pageSize: 5,
 };
 
-
-
-export const BasicTable: React.FC = () => {
-  const [tableData, setTableData] = useState<{ data: DriverTableRow[]; pagination: Pagination; loading: boolean }>({
+export const Table: React.FC = () => {
+  const [tableData, setTableData] = useState<{ data: StageTableRow[]; pagination: Pagination; loading: boolean, locationData: any }>({
     data: [],
     pagination: initialPagination,
     loading: false,
+    locationData: []
   });
   const { t } = useTranslation();
   const { isMounted } = useMounted();
@@ -45,16 +45,15 @@ export const BasicTable: React.FC = () => {
   const [form] = BaseForm.useForm();
   const [openDialogConfirm, setOpenDialogConfirm] = useState<boolean>(false);
   const [modeCreate, setModeCreate] = useState<boolean>(false);
-  const [selectedOption, setSelectedOption] = useState(null);
-  const [options, setOptions] = useState<Array<Car>>([]);
-  const [choosenRecord, setChoosenRecord] = useState<DriverTableRow | undefined>();
+  const [choosenRecord, setChoosenRecord] = useState<StageTableRow | undefined>();
+  const [newLoc, setNewLoc] = useState<any>();
   const fetch = useCallback(
     (pagination: Pagination) => {
       setTableData((tableData) => ({ ...tableData, loading: true }));
-      getBasicTableData(pagination).then((res) => {
+      getStageTableData(pagination).then((res) => {
         const rs = res.data;
         if (isMounted.current) {
-          setTableData({ data: rs.data, pagination: rs.pagination, loading: false });
+          setTableData({ data: rs.data, pagination: rs.pagination, loading: false, locationData: rs.locationData });
         }
       }).catch(err => {
         BaseModal.error({
@@ -69,28 +68,6 @@ export const BasicTable: React.FC = () => {
     [isMounted],
   );
 
-  const fetchListCarAssign = useCallback(
-    () => {
-      listToAssign().then((res) => {
-        const rs = res.data;
-        if (rs.options) {
-          setOptions(rs.options as Car[]); // Cast 'options' to Car[]
-        } else {
-          setOptions([]); // Set an empty array if 'options' is undefined
-        }
-      }).catch(err => {
-        BaseModal.error({
-          title: "Có lỗi xảy ra",
-          content: err,
-          onOk: () => {
-            setTableData({ ...tableData, loading: false });
-          }
-        });
-      })
-    },
-    [editingKey],
-  );
-
   const CategoryWrapper = styled.div`
   display: flex;
   justify-content: space-between;
@@ -99,10 +76,26 @@ export const BasicTable: React.FC = () => {
 float: right;
 `;
 
-  const handleOptionChange = (value: React.SetStateAction<null>) => {
-    setSelectedOption(value);
-  };
+  const renderTitle = (title: string) => (
+    <span>
+      {title}
+      <Link href="https://www.google.com/search?q=antd" target="_blank" rel="noopener noreferrer">
+        more
+      </Link>
+    </span>
+  );
 
+  const renderItem = (title: string, count: number) => ({
+    value: title,
+    label: (
+      <CategoryWrapper>
+        {title}
+        <span>
+          <UserOutlined /> {count}
+        </span>
+      </CategoryWrapper>
+    ),
+  });
 
   const apiLockUnlock =
     () => {
@@ -115,44 +108,21 @@ float: right;
       }
 
       setTableData((tableData) => ({ ...tableData, loading: true }));
-      lockUnlockUser(action, id).then((res) => {
+      lockUnlockLocation(action, id).then((res) => {
         const rs = res.data;
         if (isMounted.current) {
 
           setTableData({ ...tableData, loading: false });
           notificationController.success({
             message: 'Chúc mừng bạn',
-            description: choosenRecord?.is_locked === 0 ? `Đã khoá thành công tài xế ${rs}` : `Đã mở khoá thành công tài xế ${rs}`,
+            description: choosenRecord?.is_locked === 0 ? `Đã khoá thành công địa điểm ${rs}` : `Đã mở khoá thành công địa điểm ${rs}`,
           });
           fetch(tableData.pagination);
           setOpenDialogConfirm(false);
 
         }
       }).catch(err => {
-        notificationController.error({ message: err.message || err});
-        setTableData({ ...tableData, loading: false });
-        setOpenDialogConfirm(false)
-
-      })
-    }
-  const apiAssignCar =
-    (car: Car, user: DriverTableRow) => {
-      setTableData((tableData) => ({ ...tableData, loading: true }));
-      assignCar(car, user).then((res) => {
-        const rs = res.data;
-         console.log("🚀 ~ file: Table.tsx:143 ~ assignCar ~ rs:", rs)
-
-          setTableData({ ...tableData, loading: false });
-
-          notificationController.success({
-            message: 'Chúc mừng bạn',
-            description: rs + '',
-          });
-          setEditingKey(0);
-          fetch(tableData.pagination);
-          setOpenDialogConfirm(false);
-      }).catch(err => {
-        notificationController.error({ message: err.message || err });
+        notificationController.error({ message: err.message });
         setTableData({ ...tableData, loading: false });
         setOpenDialogConfirm(false)
 
@@ -184,156 +154,201 @@ float: right;
     });
   };
 
-  const isEditing = (record: DriverTableRow) => record.key === editingKey;
+  const isEditing = (record: StageTableRow) => record.key === editingKey;
 
-  const edit = (record: Partial<DriverTableRow> & { key: React.Key }) => {
+  const edit = (record: Partial<StageTableRow> & { key: React.Key }) => {
     form.setFieldsValue({ name: '', age: '', address: '', ...record });
-    fetchListCarAssign();
     setEditingKey(record.key);
+    setNewLoc(record)
   };
 
   const cancel = () => {
     setEditingKey(0);
   };
-
+  
   const save = async (key: React.Key) => {
-    const findItem = options.find(item => item.name === selectedOption || item.number_plate === selectedOption);
-    const findUser = tableData.data.find(item => item.key === key);
-    if (findItem && findUser) {
-      apiAssignCar(findItem, findUser);
+    try {
+      
+      await editLocation(newLoc)
+        .then(res=> {
+          const newData = [...tableData.data];
+          const index = newData.findIndex((item) => res?.data === item.key);
+          if (index > -1) {
+            const item = newData[index];
+            newData.splice(index, 1, {
+              ...item,
+              ...newLoc,
+            });
+            setTableData({ ...tableData, data: newData });
+          }
+          notificationController.success({
+            message: 'Chúc mừng bạn',
+            description: `Đã thay đổi thành công thông tin địa điểm`,
+          });
+        })
+        .catch(err => {
+          BaseModal.error({
+            title: "Có lỗi xảy ra",
+            content: err,
+            onOk: () => {
+              setTableData({ ...tableData, loading: false });
+            }
+          });
+        })
+      // setTableData({ ...tableData, data: newData });
+      setEditingKey(0);
+    } catch (errInfo) {
+      BaseModal.error({
+        title: "Có lỗi xảy ra",
+        onOk: () => {
+          setTableData({ ...tableData, loading: false });
+        }
+      });
     }
-    // try {
-    //   const row = (await form.validateFields()) as DriverTableRow;
-
-    //   const newData = [...tableData.data];
-    //   const index = newData.findIndex((item) => key === item.key);
-    //   if (index > -1) {
-    //     const item = newData[index];
-    //     newData.splice(index, 1, {
-    //       ...item,
-    //       ...row,
-    //     });
-    //   } else {
-    //     newData.push(row);
-    //   }
-    //   setTableData({ ...tableData, data: newData });
-    //   setEditingKey(0);
-    // } catch (errInfo) {
-    //   console.log('Validate Failed:', errInfo);
-    // }
   };
 
-  const columns: ColumnsType<DriverTableRow> = [
+  const columns: ColumnsType<StageTableRow> = [
     {
-      title: t('common.name'),
-      dataIndex: 'name',
-      width: 300,
-      fixed: 'left',
-      render: (text: string, record: DriverTableRow) => {
-        return (
-          <BaseRow style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', flexDirection: 'column' }}>
-            <BaseCol>
-              <BaseAvatar src={record?.image || urlDefaultImgDriver} alt="user avatar" size={mobileOnly ? 49 : 67} />
-            </BaseCol>
-            <BaseCol>
-              <p style={{ whiteSpace: 'nowrap' }}>{text}</p>
-            </BaseCol>
-          </BaseRow>
-        )
-      },
-    },
-    {
-      title: t('common.age'),
-      dataIndex: 'age',
-      width: 100,
-      sorter: (a: DriverTableRow, b: DriverTableRow) => a.age - b.age,
-      showSorterTooltip: false,
-      render(value, record, index) {
-        return (
-          <BaseRow style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center' }}>
-            <BaseCol>{value}</BaseCol>
-            <BaseCol>
-              {
-                record?.gender === 'female' ? (
-                  <ManOutlined style={{ color: 'blue' }} />
-                ) : (
-                  <WomanOutlined style={{ color: 'pink' }} />
-                )
-              }
-            </BaseCol>
-          </BaseRow>
-        )
-      },
-    },
-    {
-      title: 'SĐT',
-      dataIndex: 'phone',
-      width: 150,
-    },
-    {
-      title: 'Xe',
-      dataIndex: 'number_plate',
-      width: 250,
-      render: (text: string, record: DriverTableRow, index: number) => {
+      title: 'Điểm đi',
+      dataIndex: 'from_location_name',
+      width: 200,
+      render: (property: any, record: StageTableRow) => {
         const editable = isEditing(record);
         return (
           editable ? (
-            <label style={{ width: 200 }}>
-              <Select
-                showSearch
-                style={{ width: 200 }}
-                placeholder="Chọn xe"
-                optionFilterProp="children"
-                filterOption={(input, option) => (option?.value ?? '').toLowerCase().includes(input.toLowerCase())}
-                filterSort={(optionA, optionB) =>
-                  (optionA?.value ?? '').toLowerCase().localeCompare((optionB?.value ?? '').toLowerCase())
-                }
-                options={options.map((option) => ({
-                  value: option.name,
-                  label: (
-                    <span>{option.name + " | " + option.number_plate} </span>
-                  ),
-                }))}
-                value={selectedOption}
-                onChange={handleOptionChange}
+            <>
+              <BaseInput
+                placeholder={'Nhập tên tiếng Việt'}
+                value={newLoc?.from_location_name}
+                onChange={(val) => {
+                  if (val.target.value) {
+                    console.log('New Value:', val.target.value);
+                    setNewLoc({ ...newLoc, from_location_name: val.target.value });
+                  } else {
+                    console.log('Resetting to original value');
+                    setNewLoc(record);
+                  }
+                }}
               />
-            </label>
+
+              <BaseInput placeholder={'Nhập tên tiếng Anh'} value={newLoc?.en_name} onChange={(val => {
+                if (val.target.value) {
+                  setNewLoc({ ...newLoc, en_name: val.target.value })
+                } else {
+                  setNewLoc(record)
+                }
+              })} />
+            </>
           ) : (
-            <span style={{ whiteSpace: 'nowrap' }}>
-              {
-                record.name_car && text && `${record.name_car} | ${text}`
-              }
-            </span>
+            <BaseRow gutter={[10, 10]}>
+              <BaseCol >
+                <p>{record?.from_location_name} </p>
+              </BaseCol>
+            </BaseRow>
           )
         )
-      },
-
+      }
     },
     {
-      title: t('common.email'),
-      dataIndex: 'email',
-      width: 300
+      title: 'Điểm đến',
+      dataIndex: 'to_location_name',
+      width: 200,
+      render: (status: any, record: StageTableRow) => {
+        const editable = isEditing(record);
+        return (
+          editable ? (
+            <>
+              <BaseInput
+                placeholder={'Nhập giờ mở cửa'}
+                value={newLoc?.started_at}
+                onChange={(val) => {
+                  if (val.target.value) {
+                    console.log('New Value:', val.target.value);
+                    setNewLoc({ ...newLoc, started_at: val.target.value });
+                  } else {
+                    console.log('Resetting to original value');
+                    setNewLoc(record);
+                  }
+                }}
+              />
 
+              <BaseInput placeholder={'Nhập giờ đóng cửa'} value={newLoc?.closed_at} onChange={(val => {
+                if (val.target.value) {
+                  setNewLoc({ ...newLoc, closed_at: val.target.value })
+                } else {
+                  setNewLoc(record)
+                }
+              })} />
+            </>
+          ) : (
+            <BaseRow gutter={[10, 10]}>
+              <BaseCol >
+                <p>
+                  {
+                    record?.to_location_name
+                  }
+                </p>
+              </BaseCol>
+            </BaseRow>
+          )
+        )
+      }
     },
     {
-      title: t('common.address'),
-      dataIndex: 'address',
-      width: 300
+      title: 'Giá',
+      dataIndex: 'x',
+      width: 200,
+      render: (status: any, record: StageTableRow) => {
+        const editable = isEditing(record);
+
+        return (
+          editable ? (
+            <>
+              <BaseInput
+                placeholder={'Giá'}
+                value={newLoc?.x}
+                onChange={(val) => {
+                  if (val.target.value) {
+                    setNewLoc({ ...newLoc, price: val.target.value });
+                  } else {
+                    setNewLoc(record);
+                  }
+                }}
+              />
+
+            </>
+          ) : (
+
+            <BaseRow gutter={[10, 10]}>
+              <BaseCol >
+                <p>
+                  {
+                    record.price ? (
+                      `${Number(record.price).toLocaleString('it-IT', {style : 'currency', currency : 'VND'})} `
+                    ) : (
+                      'Chưa có'
+                    )
+                  }
+                </p>
+              </BaseCol>
+            </BaseRow>
+          )
+        )
+      }
     },
     {
       title: t('common.status'),
       key: 'status',
       dataIndex: 'status',
       width: 200,
-      render: (status: any, record: DriverTableRow) => (
+      render: (status: any, record: StageTableRow) => (
         <BaseRow gutter={[10, 10]}>
           <BaseCol >
             {
               record.is_locked === 1 ? (
                 <Status color={"red"} text={"Bị khoá"} />
               ) : (
-
-                <Status color={defineColorByStatus(status)} text={t(`tables.status.${status}`)} />
+                <Status color={"green"} text={"Hoạt động"} />
               )
             }
           </BaseCol>
@@ -345,8 +360,7 @@ float: right;
       title: t('tables.actions'),
       dataIndex: 'actions',
       width: 250,
-      fixed: 'right',
-      render: (text: string, record: DriverTableRow) => {
+      render: (text: string, record: StageTableRow) => {
         const editable = isEditing(record);
 
         return (
@@ -419,7 +433,7 @@ float: right;
             onOk={apiLockUnlock}
             onCancel={() => setOpenDialogConfirm(false)}
           >
-            <p>{choosenRecord?.is_locked === 0 ? "Khoá" : "Mở khoá"} {choosenRecord?.name}</p>
+            <p>{choosenRecord?.is_locked === 0 ? "Khoá" : "Mở khoá"} {choosenRecord?.key}</p>
 
           </BaseModal>
         )
@@ -428,7 +442,7 @@ float: right;
         modeCreate && (
           <BaseModal
             size='medium'
-            title={'Tạo tài xế'}
+            title={'Tạo chặng xe'}
             centered
             open={modeCreate}
             onCancel={() => setModeCreate(false)}
@@ -437,8 +451,8 @@ float: right;
           // onOk={() => handleCreateUser()}
           // onCancel={() => setModeCreate(false)}
           >
-            <BaseCard id="driver-form" title={'Điền thông tin tài xế'} padding="1.25rem">
-              <StepForm handleSuccessCreate={handleSuccessCreate} />
+            <BaseCard id="car-form" title={'Điền thông tin chặng xe'} padding="1.25rem">
+              <StepForm handleSuccessCreate={handleSuccessCreate} locationData={tableData?.locationData}/>
             </BaseCard>
           </BaseModal>
         )
@@ -449,11 +463,11 @@ float: right;
       </BaseSpace>
       <BaseTable
         columns={columns}
-        dataSource={tableData.data}
+        dataSource={tableData.data.length ? tableData.data : []}
         pagination={tableData.pagination}
         loading={tableData.loading}
         onChange={handleTableChange}
-        scroll={{ x: 1500, y: 600 }}
+        scroll={{ x: 800, y: 600 }}
         bordered
       />
     </>

@@ -16,7 +16,7 @@ const initialPagination: Pagination = {
 
 export const EditableTable: React.FC = () => {
   const [form] = BaseForm.useForm();
-  const [tableData, setTableData] = useState<{ data: DriverTableRow[]; pagination: Pagination; loading: boolean }>({
+  const [tableData, setTableData] = useState<{ data: any; pagination: Pagination; loading: boolean }>({
     data: [],
     pagination: initialPagination,
     loading: false,
@@ -80,7 +80,7 @@ export const EditableTable: React.FC = () => {
   };
 
   const handleDeleteRow = (rowId: number) => {
-    setTableData({ ...tableData, data: tableData.data.filter((item) => item.key !== rowId) });
+    setTableData({ ...tableData, data: tableData.data.filter((item: { key: number; }) => item.key !== rowId) });
   };
 
   const columns = [

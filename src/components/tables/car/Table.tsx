@@ -171,7 +171,7 @@ float: right;
   const isEditing = (record: CarTableRow) => record.key === editingKey;
 
   const edit = (record: Partial<CarTableRow> & { key: React.Key }) => {
-    form.setFieldsValue({ name: '', age: '', address: '', ...record });
+    form.setFieldsValue({ ...record });
     setEditingKey(record.key);
   };
 
@@ -203,12 +203,12 @@ float: right;
 
   const columns: ColumnsType<CarTableRow> = [
     {
-      title: t('common.name'),
+      title: 'Tên',
       dataIndex: 'name',
       width: 200,
     },
     {
-      title: t('common.age'),
+      title: 'Biển số',
       dataIndex: 'number_plate',
       width: 100,
       showSorterTooltip: false,
@@ -279,9 +279,9 @@ float: right;
                       </BaseButton>
                     )
                   }
-                  <BaseButton type="ghost" disabled={editingKey !== 0} onClick={() => edit(record)}>
+                  {/* <BaseButton type="ghost" disabled={editingKey !== 0} onClick={() => edit(record)}>
                     Cập nhật
-                  </BaseButton>
+                  </BaseButton> */}
                 </>
 
               )

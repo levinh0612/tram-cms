@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { CarTableRow, getBasicTableData, getLocationTableData, Pagination, Tag, lockUnlockLocation, LocationTableRow } from 'api/table.api';
+import { CarTableRow, getBasicTableData, getLocationTableData, Pagination, Tag, lockUnlockLocation, LocationTableRow, editLocation } from 'api/table.api';
 import { BaseTable } from '@app/components/common/BaseTable/BaseTable';
 import { ColumnsType } from 'antd/es/table';
 import { BaseButton } from '@app/components/common/BaseButton/BaseButton';
@@ -24,6 +24,7 @@ import { BaseAutoComplete } from '@app/components/common/BaseAutoComplete/BaseAu
 import { SearchInput } from '@app/components/common/inputs/SearchInput/SearchInput.styles';
 import styled from 'styled-components';
 import Typography from 'antd/lib/typography/Typography';
+import { BaseInput } from '@app/components/common/inputs/BaseInput/BaseInput';
 
 const initialPagination: Pagination = {
   current: 1,
@@ -44,7 +45,7 @@ export const Table: React.FC = () => {
   const [openDialogConfirm, setOpenDialogConfirm] = useState<boolean>(false);
   const [modeCreate, setModeCreate] = useState<boolean>(false);
   const [choosenRecord, setChoosenRecord] = useState<LocationTableRow | undefined>();
-
+  const [newLoc, setNewLoc] = useState<any>();
   const fetch = useCallback(
     (pagination: Pagination) => {
       setTableData((tableData) => ({ ...tableData, loading: true }));
@@ -99,7 +100,6 @@ float: right;
     () => {
       let action = "";
       const id = choosenRecord?.key;
-      console.log("🚀 ~ file: Table.tsx:102 ~ choosenRecord:", choosenRecord)
       if (choosenRecord?.is_locked === 0) {
         action = 'lock';
       } else {
@@ -158,87 +158,201 @@ float: right;
   const edit = (record: Partial<LocationTableRow> & { key: React.Key }) => {
     form.setFieldsValue({ name: '', age: '', address: '', ...record });
     setEditingKey(record.key);
+    setNewLoc(record)
   };
 
   const cancel = () => {
     setEditingKey(0);
   };
-
+  
   const save = async (key: React.Key) => {
     try {
-      const row = (await form.validateFields()) as LocationTableRow;
-
-      const newData = [...tableData.data];
-      const index = newData.findIndex((item) => key === item.key);
-      if (index > -1) {
-        const item = newData[index];
-        newData.splice(index, 1, {
-          ...item,
-          ...row,
-        });
-      } else {
-        newData.push(row);
-      }
-      setTableData({ ...tableData, data: newData });
+      
+      await editLocation(newLoc)
+        .then(res=> {
+          const newData = [...tableData.data];
+          const index = newData.findIndex((item) => res?.data === item.key);
+          if (index > -1) {
+            const item = newData[index];
+            newData.splice(index, 1, {
+              ...item,
+              ...newLoc,
+            });
+            setTableData({ ...tableData, data: newData });
+          }
+          notificationController.success({
+            message: 'Chúc mừng bạn',
+            description: `Đã thay đổi thành công thông tin địa điểm`,
+          });
+        })
+        .catch(err => {
+          BaseModal.error({
+            title: "Có lỗi xảy ra",
+            content: err,
+            onOk: () => {
+              setTableData({ ...tableData, loading: false });
+            }
+          });
+        })
+      // setTableData({ ...tableData, data: newData });
       setEditingKey(0);
     } catch (errInfo) {
-      console.log('Validate Failed:', errInfo);
+      BaseModal.error({
+        title: "Có lỗi xảy ra",
+        onOk: () => {
+          setTableData({ ...tableData, loading: false });
+        }
+      });
     }
   };
 
   const columns: ColumnsType<LocationTableRow> = [
     {
-      title: t('common.viName'),
+      title: 'Tên',
       dataIndex: 'vi_name',
       width: 200,
-      render: (status: any, record: LocationTableRow) => (
-        <BaseRow gutter={[10, 10]}>
-          <BaseCol >
-            <Typography>{record.vi_name}</Typography>
-            <Typography>{record.en_name}</Typography>
-          </BaseCol>
-        </BaseRow>
-      ),
+      render: (property: any, record: LocationTableRow) => {
+        const editable = isEditing(record);
+        return (
+          editable ? (
+            <>
+              <BaseInput
+                placeholder={'Nhập tên tiếng Việt'}
+                value={newLoc?.vi_name}
+                onChange={(val) => {
+                  if (val.target.value) {
+                    console.log('New Value:', val.target.value);
+                    setNewLoc({ ...newLoc, vi_name: val.target.value });
+                  } else {
+                    console.log('Resetting to original value');
+                    setNewLoc(record);
+                  }
+                }}
+              />
+
+              <BaseInput placeholder={'Nhập tên tiếng Anh'} value={newLoc?.en_name} onChange={(val => {
+                if (val.target.value) {
+                  setNewLoc({ ...newLoc, en_name: val.target.value })
+                } else {
+                  setNewLoc(record)
+                }
+              })} />
+            </>
+          ) : (
+            <BaseRow gutter={[10, 10]}>
+              <BaseCol >
+                <p>{record.vi_name} (<span>{record.en_name}</span> )</p>
+              </BaseCol>
+            </BaseRow>
+          )
+        )
+      }
     },
     {
       title: 'Thời gian mở - đóng',
       dataIndex: 'started_at',
       width: 200,
-      render: (status: any, record: LocationTableRow) => (
-        <BaseRow gutter={[10, 10]}>
-          <BaseCol >
-            <Typography>
-              {
-                record.started_at && record.started_at ? (
-                  `${record.started_at} - ${record.closed_at}`
-                ) : (
-                  `Suốt cả ngày`
-                )
-              } 
-            </Typography>
-          </BaseCol>
-        </BaseRow>
-      ),
+      render: (status: any, record: LocationTableRow) => {
+        const editable = isEditing(record);
+        return (
+          editable ? (
+            <>
+              <BaseInput
+                placeholder={'Nhập giờ mở cửa'}
+                value={newLoc?.started_at}
+                onChange={(val) => {
+                  if (val.target.value) {
+                    console.log('New Value:', val.target.value);
+                    setNewLoc({ ...newLoc, started_at: val.target.value });
+                  } else {
+                    console.log('Resetting to original value');
+                    setNewLoc(record);
+                  }
+                }}
+              />
+
+              <BaseInput placeholder={'Nhập giờ đóng cửa'} value={newLoc?.closed_at} onChange={(val => {
+                if (val.target.value) {
+                  setNewLoc({ ...newLoc, closed_at: val.target.value })
+                } else {
+                  setNewLoc(record)
+                }
+              })} />
+            </>
+          ) : (
+            <BaseRow gutter={[10, 10]}>
+              <BaseCol >
+                <p>
+                  {
+                    record.started_at && record.started_at ? (
+                      `${record.started_at} - ${record.closed_at}`
+                    ) : (
+                      `Suốt cả ngày`
+                    )
+                  }
+                </p>
+              </BaseCol>
+            </BaseRow>
+          )
+        )
+      }
     },
     {
       title: 'Toạ độ',
       dataIndex: 'x',
       width: 200,
-      render: (status: any, record: LocationTableRow) => (
-        <BaseRow gutter={[10, 10]}>
-          <BaseCol >
-            <Typography>
-              {
-                record.x && record.y || record.z ? (
-                  `${record.x} ${record.y} ${record.z}`
-                ) : (
-                  'Chưa có'
-                )
-              }
-            </Typography>
-          </BaseCol>
-        </BaseRow>
-      ),
+      render: (status: any, record: LocationTableRow) => {
+        const editable = isEditing(record);
+
+        return (
+          editable ? (
+            <>
+              <BaseInput
+                placeholder={'Nhập toạ độ X'}
+                value={newLoc?.x}
+                onChange={(val) => {
+                  if (val.target.value) {
+                    setNewLoc({ ...newLoc, x: val.target.value });
+                  } else {
+                    setNewLoc(record);
+                  }
+                }}
+              />
+
+              <BaseInput placeholder={'Nhập toạ độ Y'} value={newLoc?.y} onChange={(val => {
+                if (val.target.value) {
+                  setNewLoc({ ...newLoc, y: val.target.value })
+                } else {
+                  setNewLoc(record)
+                }
+              })} />
+
+              <BaseInput placeholder={'Nhập toạ độ Z'} value={newLoc?.z} onChange={(val => {
+                if (val.target.value) {
+                  setNewLoc({ ...newLoc, z: val.target.value })
+                } else {
+                  setNewLoc(record)
+                }
+              })} />
+            </>
+          ) : (
+
+            <BaseRow gutter={[10, 10]}>
+              <BaseCol >
+                <p>
+                  {
+                    record.x && record.y || record.z ? (
+                      `${record.x} ${record.y} ${record.z}`
+                    ) : (
+                      'Chưa có'
+                    )
+                  }
+                </p>
+              </BaseCol>
+            </BaseRow>
+          )
+        )
+      }
     },
     {
       title: t('common.status'),
@@ -306,9 +420,9 @@ float: right;
                       </BaseButton>
                     )
                   }
-                  {/* <BaseButton type="ghost" disabled={editingKey !== 0} onClick={() => edit(record)}>
+                  <BaseButton type="ghost" disabled={editingKey !== 0} onClick={() => edit(record)}>
                     Cập nhật
-                  </BaseButton> */}
+                  </BaseButton>
                 </>
 
               )
@@ -371,7 +485,7 @@ float: right;
         pagination={tableData.pagination}
         loading={tableData.loading}
         onChange={handleTableChange}
-        scroll={{ x: 800, y: 600 }} 
+        scroll={{ x: 800, y: 600 }}
         bordered
       />
     </>
