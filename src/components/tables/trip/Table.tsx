@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { CarTableRow, getBasicTableData, getLocationTableData, Pagination, Tag, lockUnlockLocation, StageTableRow, editLocation, getStageTableData } from 'api/table.api';
+import { CarTableRow, getBasicTableData, getLocationTableData, Pagination, Tag, lockUnlockLocation, TripTableRow, editLocation, getTripTableData } from 'api/table.api';
 import { BaseTable } from '@app/components/common/BaseTable/BaseTable';
 import { ColumnsType } from 'antd/es/table';
 import { BaseButton } from '@app/components/common/BaseButton/BaseButton';
@@ -17,8 +17,7 @@ import { useResponsive } from '@app/hooks/useResponsive';
 import { BaseTypography } from '@app/components/common/BaseTypography/BaseTypography';
 import { ManOutlined, UserOutlined, WomanOutlined } from '@ant-design/icons';
 import { BaseCard } from '@app/components/common/BaseCard/BaseCard';
-import { StepForm } from '@app/components/forms/Stage/StepForm';
-import { StepForm as TripStepForm } from '@app/components/forms/Trip/StepForm';
+import { StepForm } from '@app/components/forms/Trip/StepForm';
 import { BaseForm } from '@app/components/common/forms/BaseForm/BaseForm';
 import { BasePopconfirm } from '@app/components/common/BasePopconfirm/BasePopconfirm';
 import { BaseAutoComplete } from '@app/components/common/BaseAutoComplete/BaseAutoComplete';
@@ -26,7 +25,6 @@ import { SearchInput } from '@app/components/common/inputs/SearchInput/SearchInp
 import styled from 'styled-components';
 import Typography from 'antd/lib/typography/Typography';
 import { BaseInput } from '@app/components/common/inputs/BaseInput/BaseInput';
-import { useNavigate } from 'react-router-dom';
 
 const initialPagination: Pagination = {
   current: 1,
@@ -34,7 +32,7 @@ const initialPagination: Pagination = {
 };
 
 export const Table: React.FC = () => {
-  const [tableData, setTableData] = useState<{ data: StageTableRow[]; pagination: Pagination; loading: boolean, locationData: any }>({
+  const [tableData, setTableData] = useState<{ data: TripTableRow[]; pagination: Pagination; loading: boolean, locationData: any }>({
     data: [],
     pagination: initialPagination,
     loading: false,
@@ -46,17 +44,13 @@ export const Table: React.FC = () => {
   const [editingKey, setEditingKey] = useState(0);
   const [form] = BaseForm.useForm();
   const [openDialogConfirm, setOpenDialogConfirm] = useState<boolean>(false);
-  const [openDialogCreateTrip, setOpenDialogCreateTrip] = useState<boolean>(false);
   const [modeCreate, setModeCreate] = useState<boolean>(false);
-  const [choosenRecord, setChoosenRecord] = useState<StageTableRow | undefined>();
+  const [choosenRecord, setChoosenRecord] = useState<TripTableRow | undefined>();
   const [newLoc, setNewLoc] = useState<any>();
-  const [stageChoose, setStageChoose] = useState<any>();
-  const navigate = useNavigate();
-
   const fetch = useCallback(
     (pagination: Pagination) => {
       setTableData((tableData) => ({ ...tableData, loading: true }));
-      getStageTableData(pagination).then((res) => {
+      getTripTableData(pagination).then((res) => {
         const rs = res.data;
         if (isMounted.current) {
           setTableData({ data: rs.data, pagination: rs.pagination, loading: false, locationData: rs.locationData });
@@ -103,37 +97,37 @@ float: right;
     ),
   });
 
-  const apiLockUnlock =
-    () => {
-      let action = "";
-      const id = choosenRecord?.key;
-      if (choosenRecord?.is_locked === 0) {
-        action = 'lock';
-      } else {
-        action = 'unlock';
-      }
+  // const apiLockUnlock =
+  //   () => {
+  //     let action = "";
+  //     const id = choosenRecord?.key;
+  //     if (choosenRecord?.is_locked === 0) {
+  //       action = 'lock';
+  //     } else {
+  //       action = 'unlock';
+  //     }
 
-      setTableData((tableData) => ({ ...tableData, loading: true }));
-      lockUnlockLocation(action, id).then((res) => {
-        const rs = res.data;
-        if (isMounted.current) {
+  //     setTableData((tableData) => ({ ...tableData, loading: true }));
+  //     lockUnlockLocation(action, id).then((res) => {
+  //       const rs = res.data;
+  //       if (isMounted.current) {
 
-          setTableData({ ...tableData, loading: false });
-          notificationController.success({
-            message: 'Chúc mừng bạn',
-            description: choosenRecord?.is_locked === 0 ? `Đã khoá thành công địa điểm ${rs}` : `Đã mở khoá thành công địa điểm ${rs}`,
-          });
-          fetch(tableData.pagination);
-          setOpenDialogConfirm(false);
+  //         setTableData({ ...tableData, loading: false });
+  //         notificationController.success({
+  //           message: 'Chúc mừng bạn',
+  //           description: choosenRecord?.is_locked === 0 ? `Đã khoá thành công địa điểm ${rs}` : `Đã mở khoá thành công địa điểm ${rs}`,
+  //         });
+  //         fetch(tableData.pagination);
+  //         setOpenDialogConfirm(false);
 
-        }
-      }).catch(err => {
-        notificationController.error({ message: err.message });
-        setTableData({ ...tableData, loading: false });
-        setOpenDialogConfirm(false)
+  //       }
+  //     }).catch(err => {
+  //       notificationController.error({ message: err.message });
+  //       setTableData({ ...tableData, loading: false });
+  //       setOpenDialogConfirm(false)
 
-      })
-    }
+  //     })
+  //   }
 
 
   useEffect(() => {
@@ -149,11 +143,6 @@ float: right;
     fetch(initialPagination);
   }
 
-  const handleSuccessCreateTrip = () => {
-    setOpenDialogCreateTrip(false)
-    navigate('/trips')
-  }
-
   const handleDeleteRow = (rowId: number) => {
     setTableData({
       ...tableData,
@@ -165,18 +154,13 @@ float: right;
     });
   };
 
-  const isEditing = (record: StageTableRow) => record.key === editingKey;
+  const isEditing = (record: TripTableRow) => record.key === editingKey;
 
-  const edit = (record: Partial<StageTableRow> & { key: React.Key }) => {
+  const edit = (record: Partial<TripTableRow> & { key: React.Key }) => {
     form.setFieldsValue({ name: '', age: '', address: '', ...record });
     setEditingKey(record.key);
     setNewLoc(record)
   };
-
-  const createTrip = (record: Partial<StageTableRow> & { key: React.Key }) => {
-    setOpenDialogCreateTrip(true);
-    setStageChoose(record)
-  }
 
   const cancel = () => {
     setEditingKey(0);
@@ -223,12 +207,12 @@ float: right;
     }
   };
 
-  const columns: ColumnsType<StageTableRow> = [
+  const columns: ColumnsType<TripTableRow> = [
     {
       title: 'Điểm đi',
       dataIndex: 'from_location_name',
       width: 200,
-      render: (property: any, record: StageTableRow) => {
+      render: (property: any, record: TripTableRow) => {
         const editable = isEditing(record);
         return (
           editable ? (
@@ -269,7 +253,7 @@ float: right;
       title: 'Điểm đến',
       dataIndex: 'to_location_name',
       width: 200,
-      render: (status: any, record: StageTableRow) => {
+      render: (status: any, record: TripTableRow) => {
         const editable = isEditing(record);
         return (
           editable ? (
@@ -314,7 +298,7 @@ float: right;
       title: 'Giá',
       dataIndex: 'x',
       width: 200,
-      render: (status: any, record: StageTableRow) => {
+      render: (status: any, record: TripTableRow) => {
         const editable = isEditing(record);
 
         return (
@@ -357,16 +341,10 @@ float: right;
       key: 'status',
       dataIndex: 'status',
       width: 200,
-      render: (status: any, record: StageTableRow) => (
+      render: (status: any, record: TripTableRow) => (
         <BaseRow gutter={[10, 10]}>
           <BaseCol >
-            {
-              record.is_locked === 1 ? (
-                <Status color={"red"} text={"Bị khoá"} />
-              ) : (
-                <Status color={"green"} text={"Hoạt động"} />
-              )
-            }
+            <Status color='red' text={status} />
           </BaseCol>
 
         </BaseRow>
@@ -376,7 +354,7 @@ float: right;
       title: t('tables.actions'),
       dataIndex: 'actions',
       width: 250,
-      render: (text: string, record: StageTableRow) => {
+      render: (text: string, record: TripTableRow) => {
         const editable = isEditing(record);
 
         return (
@@ -394,35 +372,8 @@ float: right;
               ) : (
 
                 <>
-                  {/* {
-                    record.is_locked === 0 ? (
-                      <BaseButton
-                        type="ghost"
-                        danger
-                        onClick={() => {
-                          setChoosenRecord(record)
-                          setOpenDialogConfirm(true)
-                        }}
-                      >
-                        Khoá
-                      </BaseButton>
-                    ) : (
-                      <BaseButton
-                        type="ghost"
-                        onClick={() => {
-                          setChoosenRecord(record)
-                          setOpenDialogConfirm(true)
-                        }}
-                      >
-                        Mở khoá
-                      </BaseButton>
-                    )
-                  } */}
-                  {/* <BaseButton type="ghost" disabled={editingKey !== 0} onClick={() => edit(record)}>
+                  <BaseButton type="ghost" disabled={editingKey !== 0} onClick={() => edit(record)}>
                     Cập nhật
-                  </BaseButton> */}
-                   <BaseButton type="ghost" disabled={editingKey !== 0} onClick={() => createTrip(record)}>
-                    Tạo chuyến xe
                   </BaseButton>
                 </>
 
@@ -439,24 +390,7 @@ float: right;
 
   return (
     <>
-      {
-        openDialogConfirm && (
-          <BaseModal
-            size='small'
-            style={{ color: choosenRecord?.is_locked === 0 ? 'red' : '' }}
-            title={"Bạn có chắc"}
-            centered
-            open={openDialogConfirm}
-            okText={"Đồng ý"}
-            cancelText={"Hủy"}
-            onOk={apiLockUnlock}
-            onCancel={() => setOpenDialogConfirm(false)}
-          >
-            <p>{choosenRecord?.is_locked === 0 ? "Khoá" : "Mở khoá"} {choosenRecord?.key}</p>
-
-          </BaseModal>
-        )
-      }
+     
       {
         modeCreate && (
           <BaseModal
@@ -471,26 +405,7 @@ float: right;
           // onCancel={() => setModeCreate(false)}
           >
             <BaseCard id="car-form" title={'Điền thông tin chặng xe'} padding="1.25rem">
-              <StepForm handleSuccessCreate={handleSuccessCreate} locationData={tableData?.locationData}/>
-            </BaseCard>
-          </BaseModal>
-        )
-      }
-      {
-        openDialogCreateTrip && (
-          <BaseModal
-            size='medium'
-            title={`Tạo chuyến xe cho chặng ${stageChoose.from_location_name} - ${stageChoose.to_location_name}`}
-            centered
-            open={openDialogCreateTrip}
-            onCancel={() => setOpenDialogCreateTrip(false)}
-            okButtonProps={{ hidden: true }}
-            cancelButtonProps={{ hidden: true }}
-          // onOk={() => handleCreateUser()}
-          // onCancel={() => setModeCreate(false)}
-          >
-            <BaseCard id="car-form" title={`Điền thông tin chuyến xe cho chặng ${stageChoose.from_location_name} - ${stageChoose.to_location_name}`} padding="1.25rem">
-              <TripStepForm handleSuccessCreate={handleSuccessCreateTrip} stageData={stageChoose}/>
+              <StepForm handleSuccessCreate={handleSuccessCreate} />
             </BaseCard>
           </BaseModal>
         )

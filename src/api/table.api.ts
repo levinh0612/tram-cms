@@ -39,6 +39,21 @@ export interface StageTableRow {
   locationData?: any;
 }
 
+export interface TripTableRow {
+  key: number;
+  status: string;
+  started_at: string;
+  total_slot_trip: string;
+  created_at: string;
+  price: string;
+  stage_created_at: string;
+  driver_name: string;
+  from_location_name: string;
+  to_location_name: string;
+  car_name: string;
+  number_plate: string;
+}
+
 export interface CarTableRow {
   key: number;
   name: string;
@@ -97,7 +112,7 @@ export interface Pagination {
 }
 
 export interface BasicTableData {
-  data: DriverTableRow[] | CarTableRow[] | LocationTableRow[] | StageTableRow[];
+  data: DriverTableRow[] | CarTableRow[] | LocationTableRow[] | StageTableRow[] | TripTableRow[];
   options?: [];
   pagination: Pagination;
   msg?: string;
@@ -153,6 +168,16 @@ export const getLocationTableData = (pagination: Pagination): Promise<Response> 
 export const getStageTableData = (pagination: Pagination): Promise<Response> => {
   return new Promise((res, rej) => {
     httpApi.post<Response>('api/stage', { ...pagination }).then(({ data }) => {
+      return res(data);
+    }).catch(err => {
+      return rej(err);
+    })
+  });
+};
+
+export const getTripTableData = (pagination: Pagination): Promise<Response> => {
+  return new Promise((res, rej) => {
+    httpApi.post<Response>('api/trip', { ...pagination }).then(({ data }) => {
       return res(data);
     }).catch(err => {
       return rej(err);
@@ -238,6 +263,15 @@ export const createLocation = (payload : PayloadCreateLocation): Promise<Respons
 export const createStage = (payload : any): Promise<Response> => {
   return new Promise((res, rej) => {
     httpApi.post<Response>('api/stage/create', { ...payload }).then(({ data }) => {
+      return res(data);
+    }).catch(err => {
+      return rej(err);
+    })
+  });
+};
+export const createTrip = (payload : any): Promise<Response> => {
+  return new Promise((res, rej) => {
+    httpApi.post<Response>('api/trip/create', { ...payload }).then(({ data }) => {
       return res(data);
     }).catch(err => {
       return rej(err);

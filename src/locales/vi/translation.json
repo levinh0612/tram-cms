@@ -113,6 +113,8 @@
     "unchecked": "Chưa chọn"
   },
   "common": {
+    "stages" : "Tuyến xe",
+    "trips" : "Chuyến xe",
     "locations" : "Địa điểm",
     "address": "Địa chỉ",
     "advancedForms": "Advanced Forms",
@@ -825,6 +827,8 @@
     "yes": "Yes"
   },
   "tables": {
+    "stagesList" : "Danh sách tuyến xe",
+    "tripsList" : "Danh sách chuyến xe",
     "actions": "Thao tác",
     "basicTable": "Basic Table",
     "driversList" : "Danh sách tài xế",

@@ -127,6 +127,12 @@ export const sidebarNavigation: SidebarNavigationItem[] = [
     icon: <CompassOutlined />,
   },
   {
+    title: 'common.trips',
+    key: 'trips',
+    url: '/trips',
+    icon: <CompassOutlined />,
+  },
+  {
     title: 'common.charts',
     key: 'charts',
     url: '/charts',
