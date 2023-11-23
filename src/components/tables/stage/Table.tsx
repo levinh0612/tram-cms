@@ -51,6 +51,8 @@ export const Table: React.FC = () => {
   const [choosenRecord, setChoosenRecord] = useState<StageTableRow | undefined>();
   const [newLoc, setNewLoc] = useState<any>();
   const [stageChoose, setStageChoose] = useState<any>();
+  const [newStage, setNewStage] = useState<any>();
+
   const navigate = useNavigate();
 
   const fetch = useCallback(
@@ -167,10 +169,10 @@ float: right;
 
   const isEditing = (record: StageTableRow) => record.key === editingKey;
 
-  const edit = (record: Partial<StageTableRow> & { key: React.Key }) => {
-    form.setFieldsValue({ name: '', age: '', address: '', ...record });
+  const edit = (record: Partial<CarTableRow> & { key: React.Key }) => {
+    form.setFieldsValue({ name: '', number_plate: '', ...record });
     setEditingKey(record.key);
-    setNewLoc(record)
+    setNewStage(record)
   };
 
   const createTrip = (record: Partial<StageTableRow> & { key: React.Key }) => {
@@ -418,11 +420,11 @@ float: right;
                       </BaseButton>
                     )
                   } */}
-                  {/* <BaseButton type="ghost" disabled={editingKey !== 0} onClick={() => edit(record)}>
-                    Cập nhật
-                  </BaseButton> */}
-                   <BaseButton type="ghost" disabled={editingKey !== 0} onClick={() => createTrip(record)}>
+                   {/* <BaseButton type="ghost" disabled={editingKey !== 0} onClick={() => createTrip(record)}>
                     Tạo chuyến xe
+                  </BaseButton> */}
+                  <BaseButton type="ghost" disabled={editingKey !== 0} onClick={() => edit(record)}>
+                    Cập nhật
                   </BaseButton>
                 </>
 

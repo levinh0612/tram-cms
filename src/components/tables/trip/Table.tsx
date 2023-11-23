@@ -45,6 +45,8 @@ export const Table: React.FC = () => {
   const [form] = BaseForm.useForm();
   const [openDialogConfirm, setOpenDialogConfirm] = useState<boolean>(false);
   const [modeCreate, setModeCreate] = useState<boolean>(false);
+  const [stageData, setStageData] = useState<any>();
+  const [driverData, setDriverData] = useState<any>();
   const [choosenRecord, setChoosenRecord] = useState<TripTableRow | undefined>();
   const [newLoc, setNewLoc] = useState<any>();
   const fetch = useCallback(
@@ -54,6 +56,8 @@ export const Table: React.FC = () => {
         const rs = res.data;
         if (isMounted.current) {
           setTableData({ data: rs.data, pagination: rs.pagination, loading: false, locationData: rs.locationData });
+          setStageData(rs.stageData);
+          setDriverData(rs.driverData);
         }
       }).catch(err => {
         BaseModal.error({
@@ -153,6 +157,19 @@ float: right;
       },
     });
   };
+
+  const handleStatus = (status: string) => {
+    switch (status) {
+      case 'new':
+        return 'Mới'
+        case 'in_progress':
+          return 'Đang tiến hành'
+        case 'finished':
+          return 'Hoàn thành'
+      default:
+        return 'Trễ';
+    }
+  }
 
   const isEditing = (record: TripTableRow) => record.key === editingKey;
 
@@ -296,7 +313,7 @@ float: right;
     },
     {
       title: 'Giá',
-      dataIndex: 'x',
+      dataIndex: 'price',
       width: 200,
       render: (status: any, record: TripTableRow) => {
         const editable = isEditing(record);
@@ -306,7 +323,7 @@ float: right;
             <>
               <BaseInput
                 placeholder={'Giá'}
-                value={newLoc?.x}
+                value={newLoc?.price}
                 onChange={(val) => {
                   if (val.target.value) {
                     setNewLoc({ ...newLoc, price: val.target.value });
@@ -337,6 +354,93 @@ float: right;
       }
     },
     {
+      title: 'Tài xế',
+      dataIndex: 'driver_name',
+      width: 200,
+      render: (driver_name: any, record: TripTableRow) => {
+        const editable = isEditing(record);
+
+        return (
+          editable ? (
+            <>
+              <BaseInput
+                placeholder={'Giá'}
+                value={newLoc?.price}
+                onChange={(val) => {
+                  if (val.target.value) {
+                    setNewLoc({ ...newLoc, price: val.target.value });
+                  } else {
+                    setNewLoc(record);
+                  }
+                }}
+              />
+
+            </>
+          ) : (
+
+            <BaseRow gutter={[10, 10]}>
+              <BaseCol >
+                <p>
+                  {
+                    driver_name
+                  }
+                </p>
+              </BaseCol>
+            </BaseRow>
+          )
+        )
+      }
+    },
+    {
+      title: 'Xe',
+      dataIndex: 'car_name',
+      width: 200,
+      render: (car_name: any, record: TripTableRow) => {
+        return (
+          <BaseRow gutter={[10, 10]}>
+              <BaseCol >
+                <p>
+                  {
+                    record.car_name + " | " + record.number_plate 
+                  }
+                </p>
+              </BaseCol>
+            </BaseRow>
+        )
+      }
+    },
+    {
+      title: 'Thời gian',
+      dataIndex: 'created_at',
+      width: 200,
+      render: (created_at: any, record: TripTableRow) => {
+        return (
+          <BaseRow gutter={[10, 10]}>
+              <BaseCol >
+                <p> Ngày tạo: {record.created_at || "Chưa có"} </p>
+                <p> Ngày bắt đầu: {record.started_at || "Chưa có"} </p>
+                <p> Ngày hoàn thành: {record.finished_at || "Chưa có"} </p>
+              </BaseCol>
+            </BaseRow>
+        )
+      }
+    },
+    {
+      title: 'Số lượng',
+      dataIndex: 'slot_left',
+      width: 200,
+      render: (slot_left: any, record: TripTableRow) => {
+        return (
+          <BaseRow gutter={[10, 10]}>
+              <BaseCol >
+                <p> Chỗ: {record.total_ticket_slot} / {record.total_slot_trip}</p>
+                <p> Vé: {record.total_ticket}</p>
+              </BaseCol>
+            </BaseRow>
+        )
+      }
+    },
+    {
       title: t('common.status'),
       key: 'status',
       dataIndex: 'status',
@@ -344,7 +448,7 @@ float: right;
       render: (status: any, record: TripTableRow) => (
         <BaseRow gutter={[10, 10]}>
           <BaseCol >
-            <Status color='red' text={status} />
+            <Status color='red' text={handleStatus(status)} />
           </BaseCol>
 
         </BaseRow>
@@ -395,7 +499,7 @@ float: right;
         modeCreate && (
           <BaseModal
             size='medium'
-            title={'Tạo chặng xe'}
+            title={'Tạo chuyến xe'}
             centered
             open={modeCreate}
             onCancel={() => setModeCreate(false)}
@@ -405,7 +509,7 @@ float: right;
           // onCancel={() => setModeCreate(false)}
           >
             <BaseCard id="car-form" title={'Điền thông tin chặng xe'} padding="1.25rem">
-              <StepForm handleSuccessCreate={handleSuccessCreate} />
+              <StepForm handleSuccessCreate={handleSuccessCreate} stageData={stageData} driverData={driverData} />
             </BaseCard>
           </BaseModal>
         )

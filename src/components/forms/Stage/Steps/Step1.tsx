@@ -68,7 +68,7 @@ export const Step1: React.FC<any> = (props) => {
       >
           <BaseSelect >
             {
-              locationData.map((item: any) => {
+              locationData && locationData.length > 0 && locationData.map((item: any) => {
                 return (
                   <Option key={item.id} value={item.id}>{ "#" + item.id + "| "+ item.vi_name + " (" + item.en_name + ")"}</Option>
                 )

@@ -40,6 +40,9 @@ export interface StageTableRow {
 }
 
 export interface TripTableRow {
+  total_ticket: number;
+  total_ticket_slot: number;
+  finished_at: number;
   key: number;
   status: string;
   started_at: string;
@@ -288,7 +291,15 @@ export const editLocation = (payload : any): Promise<Response> => {
   });
 };
 
-
+export const editCar = (payload : any): Promise<Response> => {
+  return new Promise((res, rej) => {
+    httpApi.post<Response>('api/car/edit', { ...payload }).then(({ data }) => {
+      return res(data);
+    }).catch(err => {
+      return rej(err);
+    })
+  });
+};
 
 export const getTreeTableData = (pagination: Pagination): Promise<TreeTableData> => {
   return new Promise((res) => {

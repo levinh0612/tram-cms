@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { CarTableRow, getBasicTableData, getCarTableData, Pagination, Tag, lockUnlockCar } from 'api/table.api';
+import { CarTableRow, getBasicTableData, getCarTableData, Pagination, Tag, lockUnlockCar, editCar } from 'api/table.api';
 import { BaseTable } from '@app/components/common/BaseTable/BaseTable';
 import { ColumnsType } from 'antd/es/table';
 import { BaseButton } from '@app/components/common/BaseButton/BaseButton';
@@ -23,6 +23,7 @@ import { BasePopconfirm } from '@app/components/common/BasePopconfirm/BasePopcon
 import { BaseAutoComplete } from '@app/components/common/BaseAutoComplete/BaseAutoComplete';
 import { SearchInput } from '@app/components/common/inputs/SearchInput/SearchInput.styles';
 import styled from 'styled-components';
+import { BaseInput } from '@app/components/common/inputs/BaseInput/BaseInput';
 
 const initialPagination: Pagination = {
   current: 1,
@@ -43,6 +44,8 @@ export const Table: React.FC = () => {
   const [openDialogConfirm, setOpenDialogConfirm] = useState<boolean>(false);
   const [modeCreate, setModeCreate] = useState<boolean>(false);
   const [choosenRecord, setChoosenRecord] = useState<CarTableRow | undefined>();
+  const [newCar, setNewCar] = useState<any>();
+
   const fetch = useCallback(
     (pagination: Pagination) => {
       setTableData((tableData) => ({ ...tableData, loading: true }));
@@ -171,8 +174,9 @@ float: right;
   const isEditing = (record: CarTableRow) => record.key === editingKey;
 
   const edit = (record: Partial<CarTableRow> & { key: React.Key }) => {
-    form.setFieldsValue({ ...record });
+    form.setFieldsValue({ name: '', number_plate: '', ...record });
     setEditingKey(record.key);
+    setNewCar(record)
   };
 
   const cancel = () => {
@@ -181,23 +185,42 @@ float: right;
 
   const save = async (key: React.Key) => {
     try {
-      const row = (await form.validateFields()) as CarTableRow;
-
-      const newData = [...tableData.data];
-      const index = newData.findIndex((item) => key === item.key);
-      if (index > -1) {
-        const item = newData[index];
-        newData.splice(index, 1, {
-          ...item,
-          ...row,
-        });
-      } else {
-        newData.push(row);
-      }
-      setTableData({ ...tableData, data: newData });
+      
+      await editCar(newCar)
+        .then(res=> {
+          const newData = [...tableData.data];
+          const index = newData.findIndex((item) => res?.data === item.key);
+          if (index > -1) {
+            const item = newData[index];
+            newData.splice(index, 1, {
+              ...item,
+              ...newCar,
+            });
+            setTableData({ ...tableData, data: newData });
+          }
+          notificationController.success({
+            message: 'Chúc mừng bạn',
+            description: `Đã thay đổi thành công thông tin xe`,
+          });
+        })
+        .catch(err => {
+          BaseModal.error({
+            title: "Có lỗi xảy ra",
+            content: err,
+            onOk: () => {
+              setTableData({ ...tableData, loading: false });
+            }
+          });
+        })
+      // setTableData({ ...tableData, data: newData });
       setEditingKey(0);
     } catch (errInfo) {
-      console.log('Validate Failed:', errInfo);
+      BaseModal.error({
+        title: "Có lỗi xảy ra",
+        onOk: () => {
+          setTableData({ ...tableData, loading: false });
+        }
+      });
     }
   };
 
@@ -206,12 +229,84 @@ float: right;
       title: 'Tên',
       dataIndex: 'name',
       width: 200,
+      render: (name: string, record: CarTableRow) => {
+        console.log("🚀 ~ file: Table.tsx:210 ~ record:", record)
+        const editable = isEditing(record);
+        return (
+         <>
+           {
+            editable ? (
+              <BaseInput
+                placeholder={'Nhập tên tiếng Việt'}
+                value={newCar?.name}
+                onChange={(val) => {
+                  if (val.target.value) {
+                    console.log('New Value:', val.target.value);
+                    setNewCar({ ...newCar, name: val.target.value });
+                  } else {
+                    console.log('Resetting to original value');
+                    setNewCar(record);
+                  }
+                }}
+              />
+            ) : (
+              <BaseRow gutter={[10, 10]}>
+              <BaseCol >
+                <p>
+                  {
+                    name
+                  }
+                </p>
+              </BaseCol>
+            </BaseRow>
+            )
+          }
+         </>
+         
+        )
+      }
     },
     {
       title: 'Biển số',
       dataIndex: 'number_plate',
       width: 100,
       showSorterTooltip: false,
+      render: (number_plate: string, record: CarTableRow) => {
+        console.log("🚀 ~ file: Table.tsx:210 ~ record:", record)
+        const editable = isEditing(record);
+        return (
+         <>
+           {
+            editable ? (
+              <BaseInput
+                placeholder={'Nhập tên tiếng Việt'}
+                value={newCar?.number_plate}
+                onChange={(val) => {
+                  if (val.target.value) {
+                    console.log('New Value:', val.target.value);
+                    setNewCar({ ...newCar, number_plate: val.target.value });
+                  } else {
+                    console.log('Resetting to original value');
+                    setNewCar(record);
+                  }
+                }}
+              />
+            ) : (
+              <BaseRow gutter={[10, 10]}>
+              <BaseCol >
+                <p>
+                  {
+                    number_plate
+                  }
+                </p>
+              </BaseCol>
+            </BaseRow>
+            )
+          }
+         </>
+         
+        )
+      }
     },
     {
       title: t('common.status'),
@@ -279,9 +374,9 @@ float: right;
                       </BaseButton>
                     )
                   }
-                  {/* <BaseButton type="ghost" disabled={editingKey !== 0} onClick={() => edit(record)}>
+                  <BaseButton type="ghost" disabled={editingKey !== 0} onClick={() => edit(record)}>
                     Cập nhật
-                  </BaseButton> */}
+                  </BaseButton>
                 </>
 
               )

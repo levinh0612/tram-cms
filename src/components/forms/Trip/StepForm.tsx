@@ -23,27 +23,27 @@ interface FieldData {
 interface StepFormProps {
   handleSuccessCreate: () => void; // Replace with the actual prop type
   stageData?: any;
-
+  driverData?: any;
 }
 
 export const StepForm: React.FC<StepFormProps> = (props) => {
-  const {handleSuccessCreate, stageData} = props;
-  console.log("🚀 ~ file: StepForm.tsx:31 ~ stageData:", stageData)
+  const {handleSuccessCreate, stageData, driverData} = props;
   const [current, setCurrent] = useState(0);
   const [form] = BaseForm.useForm();
   const [price, setPrice] = useState<number>(0);
   const [fields, setFields] = useState<FieldData[]>([
-    { name: 'fromLocation', value: '' },
-    { name: 'toLocation', value: '' },
+    { name: 'stageId', value: '' },
+    { name: 'driverId', value: '' },
+    { name: 'countSlot', value: '' },
   ]);
   const [isLoading, setIsLoading] = useState(false);
   const { t } = useTranslation();
   const { isMounted } = useMounted();
 
   const formLabels: FormValues = {
-    fromLocation: 'Nơi đi',
-    toLocation: 'Nơi đến',
-  
+    stageId: 'Tuyến xe',
+    driverId: 'Tài xế',
+    countSlot: "Tổng số chỗ ngồi"
   };
 
   const formValues = fields
@@ -110,8 +110,8 @@ formValues.forEach((item) => {
   ];
 
   const formFieldsUi = [
-    <Step1 key="1" stageData={stageData} formValues={formValues} />,
-    <Step3 key="2" formValues={formValues}/>,
+    <Step1 key="1" stageData={stageData} formValues={formValues} driverData={driverData}/>,
+    <Step3 key="2" stageData={stageData} formValues={formValues} driverData={driverData}/>,
   ];
 
   return (
