@@ -40,6 +40,7 @@ export interface StageTableRow {
 }
 
 export interface TripTableRow {
+  driver_id: number;
   total_ticket: number;
   total_ticket_slot: number;
   finished_at: number;
@@ -205,6 +206,15 @@ export const assignCar = (car: Car, user: DriverTableRow): Promise<Response> => 
     })
   });
 };
+export const changeDriverOfTrip = (driver: DriverTableRow, trip: TripTableRow): Promise<Response> => {
+  return new Promise((res, rej) => {
+    httpApi.post<Response>('api/trip/changeDriver', { driver, trip }).then(({ data }) => {
+      return res(data);
+    }).catch(err => {
+      return rej(err);
+    })
+  });
+};
 
 export const lockUnlockUser = (action: string, id: number | undefined): Promise<Response> => {
   return new Promise((res, rej) => {
@@ -275,6 +285,33 @@ export const createStage = (payload : any): Promise<Response> => {
 export const createTrip = (payload : any): Promise<Response> => {
   return new Promise((res, rej) => {
     httpApi.post<Response>('api/trip/create', { ...payload }).then(({ data }) => {
+      return res(data);
+    }).catch(err => {
+      return rej(err);
+    })
+  });
+};
+export const editTrip = (payload : any): Promise<Response> => {
+  return new Promise((res, rej) => {
+    httpApi.post<Response>('api/trip/edit', { ...payload }).then(({ data }) => {
+      return res(data);
+    }).catch(err => {
+      return rej(err);
+    })
+  });
+};
+export const topDriver = (payload : any): Promise<Response> => {
+  return new Promise((res, rej) => {
+    httpApi.post<Response>('api/user/top', { ...payload }).then(({ data }) => {
+      return res(data);
+    }).catch(err => {
+      return rej(err);
+    })
+  });
+};
+export const topStage = (payload : any): Promise<Response> => {
+  return new Promise((res, rej) => {
+    httpApi.post<Response>('api/stage/top', { ...payload }).then(({ data }) => {
       return res(data);
     }).catch(err => {
       return rej(err);

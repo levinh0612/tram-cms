@@ -12,6 +12,7 @@ import { getTrendingCreators, TrendingCreator } from '@app/api/trendingCreators'
 import * as S from './TrendingCreators.styles';
 import { BaseRow } from '@app/components/common/BaseRow/BaseRow';
 import { BaseCol } from '@app/components/common/BaseCol/BaseCol';
+import { topDriver } from '@app/api/table.api';
 
 export const TrendingCreators: React.FC = () => {
   const [isStoryOpened, setStoryOpened] = useState(false);
@@ -25,6 +26,20 @@ export const TrendingCreators: React.FC = () => {
   const sliderRef = useRef<Slider>(null);
 
   useEffect(() => {
+    topDriver({}).then(rs => {
+      setStories(rs.data.map((item: any) => {
+        return {
+          url:
+            item?.image || process.env.REACT_APP_ASSETS_BUCKET + '/lightence-trending/maryna-yazbeck-rnwDiYrHtM0-unsplash_rn3fhj.webp',
+          header: {
+            heading: item.name,
+            subheading: item.username,
+            profileImage: item.image || process.env.REACT_APP_ASSETS_BUCKET + '/lightence-trending/Ellipse_8_y0rdfd.webp',
+          },
+          viewed: false,
+        }
+      }));
+    })
     getTrendingCreators().then((res) => setStories(res));
   }, []);
 
@@ -32,9 +47,9 @@ export const TrendingCreators: React.FC = () => {
     <>
       <NFTCardHeader title={t('nft.trendingCreators')}>
         <BaseRow align="middle">
-          <BaseCol>
+          {/* <BaseCol>
             <ViewAll bordered={false} />
-          </BaseCol>
+          </BaseCol> */}
 
           {isTabletOrHigher && (
             <>
@@ -166,6 +181,7 @@ export const TrendingCreators: React.FC = () => {
               <S.CardWrapper>
                 <TrendingCreatorsStory
                   img={story.header.profileImage}
+                  name={story.header.heading}
                   viewed={story.viewed}
                   onStoryOpen={() => {
                     if (!dragging) {

@@ -8,7 +8,7 @@ import * as S from '../StepForm.styles';
 import { useEffect, useState } from 'react';
 
 export const Step1: React.FC<any> = (props) => {
-  const {locationData, formValues, price, setPrice} = props;
+  const {locationData, formValues, price, setPrice, newStage, modeUpdate} = props;
   const { t } = useTranslation();
   const [errMess, setErrMess] = useState<string>('');
   const [mess, setMess] = useState<string>('');
@@ -58,7 +58,7 @@ export const Step1: React.FC<any> = (props) => {
     }
 
   }, [formValues])
-  console.log('price', price)
+  console.log('newStage', newStage)
   return (
     <S.FormContent>
       <BaseForm.Item
@@ -66,7 +66,7 @@ export const Step1: React.FC<any> = (props) => {
         label={"Chọn nơi đi"}
         rules={[{ required: true, message: "Vui lòng điền vào!" }]}
       >
-          <BaseSelect >
+          <BaseSelect defaultValue={13} value={13}>
             {
               locationData && locationData.length > 0 && locationData.map((item: any) => {
                 return (

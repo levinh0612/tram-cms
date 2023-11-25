@@ -9,7 +9,7 @@ import { Dates } from '@app/constants/Dates';
 import { mergeBy } from '@app/utils/utils';
 import * as S from './StepForm.styles';
 import { Steps } from './StepForm.styles';
-import { PayloadCreateUser, createTrip } from '@app/api/table.api';
+import { PayloadCreateUser, createTrip, editTrip } from '@app/api/table.api';
 import { useMounted } from '@app/hooks/useMounted';
 interface FormValues {
   [key: string]: string | undefined;
@@ -24,17 +24,21 @@ interface StepFormProps {
   handleSuccessCreate: () => void; // Replace with the actual prop type
   stageData?: any;
   driverData?: any;
+  handleSuccessEdit: () => void;
+  modeEdit?: boolean;
+  oldTrip?: any;
 }
 
 export const StepForm: React.FC<StepFormProps> = (props) => {
-  const {handleSuccessCreate, stageData, driverData} = props;
+  const {handleSuccessCreate, stageData, driverData, handleSuccessEdit, modeEdit, oldTrip} = props;
+  console.log("🚀 ~ file: StepForm.tsx:34 ~ oldTrip:", oldTrip)
   const [current, setCurrent] = useState(0);
   const [form] = BaseForm.useForm();
   const [price, setPrice] = useState<number>(0);
   const [fields, setFields] = useState<FieldData[]>([
-    { name: 'stageId', value: '' },
-    { name: 'driverId', value: '' },
-    { name: 'countSlot', value: '' },
+    { name: 'stageId', value: oldTrip?.stage_id || ""},
+    { name: 'driverId', value: oldTrip?.driver_id ||'' },
+    { name: 'countSlot', value: oldTrip?.total_slot_trip || '' },
   ]);
   const [isLoading, setIsLoading] = useState(false);
   const { t } = useTranslation();
@@ -66,17 +70,17 @@ export const StepForm: React.FC<StepFormProps> = (props) => {
 
   const onFinish = () => {
     setIsLoading(true);
-
-   // Create an empty payload object
-const payload: PayloadCreateUser = {};
-
-// Iterate through formValues and populate the payload object
-formValues.forEach((item) => {
-  // Check if the field in the item matches one of the fields in PayloadCreateUser
-  if (item.field) {
-    payload[item.field] = item.value;
-  }
-});
+    // Create an empty payload object
+    const payload: PayloadCreateUser = {};
+    
+    // Iterate through formValues and populate the payload object
+    formValues.forEach((item) => {
+      // Check if the field in the item matches one of the fields in PayloadCreateUser
+      if (item.field) {
+        payload[item.field] = item.value;
+      }
+    });
+    if (!modeEdit) {
       createTrip(payload).then((res) => {
         const rs = res.data;
         if (isMounted.current) {
@@ -89,15 +93,27 @@ formValues.forEach((item) => {
         }
       }).catch(err => {
         setIsLoading(false);
-        notificationController.error({ message: err.message || err});
+        notificationController.error({ message: err.message || err });
       })
-    
+    } else {
+      editTrip({...payload, id: oldTrip?.key}).then((res) => {
+        const rs = res.data;
+        if (isMounted.current) {
 
-    // setTimeout(() => {
-    //   notificationController.success({ message: t('common.success') });
-    //   setIsLoading(false);
-    //   setCurrent(0);
-    // }, 1500);
+          notificationController.success({
+            message: 'Chúc mừng bạn',
+            description: rs?.msg || "",
+          });
+          setIsLoading(false);
+          handleSuccessEdit();
+        }
+      }).catch(err => {
+        console.log('3')
+
+        setIsLoading(false);
+        notificationController.error({ message: err.message || err });
+      })
+    }
   };
 
   const steps = [
@@ -110,7 +126,7 @@ formValues.forEach((item) => {
   ];
 
   const formFieldsUi = [
-    <Step1 key="1" stageData={stageData} formValues={formValues} driverData={driverData}/>,
+    <Step1 key="1" stageData={stageData} formValues={formValues} driverData={driverData} oldTrip={oldTrip}/>,
     <Step3 key="2" stageData={stageData} formValues={formValues} driverData={driverData}/>,
   ];
 

@@ -23,11 +23,13 @@ interface FieldData {
 interface StepFormProps {
   handleSuccessCreate: () => void; // Replace with the actual prop type
   locationData?: any;
-
+  handleSuccessUpdate?: () => void;
+  newStage?: any;
+  modeUpdate?: boolean;
 }
 
 export const StepForm: React.FC<StepFormProps> = (props) => {
-  const {handleSuccessCreate, locationData} = props;
+  const {handleSuccessCreate, locationData, handleSuccessUpdate, newStage, modeUpdate} = props;
   const [current, setCurrent] = useState(0);
   const [form] = BaseForm.useForm();
   const [price, setPrice] = useState<number>(0);
@@ -109,7 +111,7 @@ formValues.forEach((item) => {
   ];
 
   const formFieldsUi = [
-    <Step1 key="1" locationData={locationData} formValues={formValues} price={price} setPrice={setPrice}/>,
+    <Step1 key="1" locationData={locationData} formValues={formValues} price={price} setPrice={setPrice} newStage={newStage}/>,
     <Step3 key="2" formValues={formValues} price={price} locationData={locationData}/>,
   ];
 

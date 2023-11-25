@@ -21,10 +21,10 @@ export const TrendingCollection: React.FC<TrendingActivity> = ({ title, owner, u
           <S.Title level={5}>{title}</S.Title>
         </S.InfoRow>
         <S.InfoRow>
-          <S.OwnerText>
+          {/* <S.OwnerText>
             {t('nft.by')} {owner}
-          </S.OwnerText>
-          <S.USDText>{getCurrencyPrice(formatNumberWithCommas(usd_value), CurrencyTypeEnum.USD)}</S.USDText>
+          </S.OwnerText> */}
+          <S.USDText>{usd_value}</S.USDText>
         </S.InfoRow>
       </S.NftCollectionInfo>
     </S.Card>

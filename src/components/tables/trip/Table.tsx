@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { CarTableRow, getBasicTableData, getLocationTableData, Pagination, Tag, lockUnlockLocation, TripTableRow, editLocation, getTripTableData } from 'api/table.api';
+import { CarTableRow, getBasicTableData, getLocationTableData, Pagination, Tag, lockUnlockLocation, TripTableRow, editLocation, getTripTableData, DriverTableRow, changeDriverOfTrip } from 'api/table.api';
 import { BaseTable } from '@app/components/common/BaseTable/BaseTable';
 import { ColumnsType } from 'antd/es/table';
 import { BaseButton } from '@app/components/common/BaseButton/BaseButton';
@@ -25,6 +25,7 @@ import { SearchInput } from '@app/components/common/inputs/SearchInput/SearchInp
 import styled from 'styled-components';
 import Typography from 'antd/lib/typography/Typography';
 import { BaseInput } from '@app/components/common/inputs/BaseInput/BaseInput';
+import { Select } from 'antd';
 
 const initialPagination: Pagination = {
   current: 1,
@@ -45,10 +46,13 @@ export const Table: React.FC = () => {
   const [form] = BaseForm.useForm();
   const [openDialogConfirm, setOpenDialogConfirm] = useState<boolean>(false);
   const [modeCreate, setModeCreate] = useState<boolean>(false);
+  const [modeEdit, setModeEdit] = useState<boolean>(false);
   const [stageData, setStageData] = useState<any>();
   const [driverData, setDriverData] = useState<any>();
   const [choosenRecord, setChoosenRecord] = useState<TripTableRow | undefined>();
   const [newLoc, setNewLoc] = useState<any>();
+  const [selectedOption, setSelectedOption] = useState(null);
+
   const fetch = useCallback(
     (pagination: Pagination) => {
       setTableData((tableData) => ({ ...tableData, loading: true }));
@@ -147,6 +151,17 @@ float: right;
     fetch(initialPagination);
   }
 
+  const handleSuccessEdit = () => {
+    setModeEdit(false);
+    cancel();
+    setNewLoc(null)
+    fetch(initialPagination);
+  }
+
+  const handleOptionChange = (value: React.SetStateAction<null>) => {
+    setSelectedOption(value);
+  };
+
   const handleDeleteRow = (rowId: number) => {
     setTableData({
       ...tableData,
@@ -177,52 +192,50 @@ float: right;
     form.setFieldsValue({ name: '', age: '', address: '', ...record });
     setEditingKey(record.key);
     setNewLoc(record)
+    setModeEdit(true)
   };
 
   const cancel = () => {
     setEditingKey(0);
+    setSelectedOption(null);
+
   };
   
   const save = async (key: React.Key) => {
-    try {
-      
-      await editLocation(newLoc)
-        .then(res=> {
-          const newData = [...tableData.data];
-          const index = newData.findIndex((item) => res?.data === item.key);
-          if (index > -1) {
-            const item = newData[index];
-            newData.splice(index, 1, {
-              ...item,
-              ...newLoc,
-            });
-            setTableData({ ...tableData, data: newData });
-          }
-          notificationController.success({
-            message: 'Chúc mừng bạn',
-            description: `Đã thay đổi thành công thông tin địa điểm`,
-          });
-        })
-        .catch(err => {
-          BaseModal.error({
-            title: "Có lỗi xảy ra",
-            content: err,
-            onOk: () => {
-              setTableData({ ...tableData, loading: false });
-            }
-          });
-        })
-      // setTableData({ ...tableData, data: newData });
-      setEditingKey(0);
-    } catch (errInfo) {
-      BaseModal.error({
-        title: "Có lỗi xảy ra",
-        onOk: () => {
-          setTableData({ ...tableData, loading: false });
-        }
-      });
+    const findItem = driverData.find((item: {
+      id: null; driver_id: number; 
+}) => item.id === selectedOption);
+    console.log("🚀 ~ file: Table.tsx:197 ~ save ~ driverData:", driverData)
+    const findTrip = tableData.data.find(item => item.key === key);
+    if (findItem && findTrip) {
+      apiChangeDriver(findItem, findTrip);
     }
   };
+
+  const apiChangeDriver =
+    (driver: DriverTableRow, trip: TripTableRow) => {
+      setTableData((tableData) => ({ ...tableData, loading: true }));
+      changeDriverOfTrip(driver, trip).then((res) => {
+        const rs = res.data;
+
+          setTableData({ ...tableData, loading: false });
+
+          notificationController.success({
+            message: 'Chúc mừng bạn',
+            description: rs + '',
+          });
+          setEditingKey(0);
+          fetch(tableData.pagination);
+          setOpenDialogConfirm(false);
+          setSelectedOption(null);
+
+      }).catch(err => {
+        notificationController.error({ message: err.message || err });
+        setTableData({ ...tableData, loading: false });
+        setOpenDialogConfirm(false)
+
+      })
+    }
 
   const columns: ColumnsType<TripTableRow> = [
     {
@@ -232,37 +245,11 @@ float: right;
       render: (property: any, record: TripTableRow) => {
         const editable = isEditing(record);
         return (
-          editable ? (
-            <>
-              <BaseInput
-                placeholder={'Nhập tên tiếng Việt'}
-                value={newLoc?.from_location_name}
-                onChange={(val) => {
-                  if (val.target.value) {
-                    console.log('New Value:', val.target.value);
-                    setNewLoc({ ...newLoc, from_location_name: val.target.value });
-                  } else {
-                    console.log('Resetting to original value');
-                    setNewLoc(record);
-                  }
-                }}
-              />
-
-              <BaseInput placeholder={'Nhập tên tiếng Anh'} value={newLoc?.en_name} onChange={(val => {
-                if (val.target.value) {
-                  setNewLoc({ ...newLoc, en_name: val.target.value })
-                } else {
-                  setNewLoc(record)
-                }
-              })} />
-            </>
-          ) : (
             <BaseRow gutter={[10, 10]}>
               <BaseCol >
                 <p>{record?.from_location_name} </p>
               </BaseCol>
             </BaseRow>
-          )
         )
       }
     },
@@ -273,31 +260,6 @@ float: right;
       render: (status: any, record: TripTableRow) => {
         const editable = isEditing(record);
         return (
-          editable ? (
-            <>
-              <BaseInput
-                placeholder={'Nhập giờ mở cửa'}
-                value={newLoc?.started_at}
-                onChange={(val) => {
-                  if (val.target.value) {
-                    console.log('New Value:', val.target.value);
-                    setNewLoc({ ...newLoc, started_at: val.target.value });
-                  } else {
-                    console.log('Resetting to original value');
-                    setNewLoc(record);
-                  }
-                }}
-              />
-
-              <BaseInput placeholder={'Nhập giờ đóng cửa'} value={newLoc?.closed_at} onChange={(val => {
-                if (val.target.value) {
-                  setNewLoc({ ...newLoc, closed_at: val.target.value })
-                } else {
-                  setNewLoc(record)
-                }
-              })} />
-            </>
-          ) : (
             <BaseRow gutter={[10, 10]}>
               <BaseCol >
                 <p>
@@ -307,7 +269,6 @@ float: right;
                 </p>
               </BaseCol>
             </BaseRow>
-          )
         )
       }
     },
@@ -319,23 +280,6 @@ float: right;
         const editable = isEditing(record);
 
         return (
-          editable ? (
-            <>
-              <BaseInput
-                placeholder={'Giá'}
-                value={newLoc?.price}
-                onChange={(val) => {
-                  if (val.target.value) {
-                    setNewLoc({ ...newLoc, price: val.target.value });
-                  } else {
-                    setNewLoc(record);
-                  }
-                }}
-              />
-
-            </>
-          ) : (
-
             <BaseRow gutter={[10, 10]}>
               <BaseCol >
                 <p>
@@ -350,40 +294,50 @@ float: right;
               </BaseCol>
             </BaseRow>
           )
-        )
       }
     },
     {
       title: 'Tài xế',
       dataIndex: 'driver_name',
-      width: 200,
+      width: 300,
       render: (driver_name: any, record: TripTableRow) => {
         const editable = isEditing(record);
 
         return (
           editable ? (
-            <>
-              <BaseInput
-                placeholder={'Giá'}
-                value={newLoc?.price}
-                onChange={(val) => {
-                  if (val.target.value) {
-                    setNewLoc({ ...newLoc, price: val.target.value });
-                  } else {
-                    setNewLoc(record);
-                  }
-                }}
+            <label style={{ width: 200 }}>
+              <Select
+                showSearch
+                style={{ width: 250 }}
+                placeholder="Chọn tài xế"
+                optionFilterProp="children"
+                filterOption={(input, option) => String(option?.value ?? '').toLowerCase().includes(input.toLowerCase())}
+                filterSort={(optionA, optionB) =>
+                  String(optionA?.value ?? '').toLowerCase().localeCompare(String(optionB?.value ?? '').toLowerCase())
+                }
+                options={driverData.filter((d: any) => d.id != record.driver_id).map((driver: { id: any; first_name: string; last_name: string; car_name: string; }) => ({
+                  value: driver.id,
+                  label: (
+                    <span>{driver.first_name + " " + driver.last_name + " | " + driver.car_name} </span>
+                  ),
+                }))}
+                value={selectedOption}
+                onChange={handleOptionChange}
               />
-
-            </>
+            </label>
           ) : (
 
             <BaseRow gutter={[10, 10]}>
               <BaseCol >
-                <p>
+                <p> Tên: 
                   {
-                    driver_name
+                    " " +driver_name
                   }
+                </p>
+                <p> Xe: 
+                {
+                  " " +record.car_name + " | " + record.number_plate 
+                }
                 </p>
               </BaseCol>
             </BaseRow>
@@ -391,24 +345,7 @@ float: right;
         )
       }
     },
-    {
-      title: 'Xe',
-      dataIndex: 'car_name',
-      width: 200,
-      render: (car_name: any, record: TripTableRow) => {
-        return (
-          <BaseRow gutter={[10, 10]}>
-              <BaseCol >
-                <p>
-                  {
-                    record.car_name + " | " + record.number_plate 
-                  }
-                </p>
-              </BaseCol>
-            </BaseRow>
-        )
-      }
-    },
+  
     {
       title: 'Thời gian',
       dataIndex: 'created_at',
@@ -508,8 +445,30 @@ float: right;
           // onOk={() => handleCreateUser()}
           // onCancel={() => setModeCreate(false)}
           >
-            <BaseCard id="car-form" title={'Điền thông tin chặng xe'} padding="1.25rem">
-              <StepForm handleSuccessCreate={handleSuccessCreate} stageData={stageData} driverData={driverData} />
+            <BaseCard id="car-form" title={'Điền thông tin chuyến xe'} padding="1.25rem">
+              <StepForm handleSuccessCreate={handleSuccessCreate} stageData={stageData} driverData={driverData} handleSuccessEdit={handleSuccessEdit}/>
+            </BaseCard>
+          </BaseModal>
+        )
+      }
+      {
+        modeEdit && (
+          <BaseModal
+            size='medium'
+            title={`Cập nhật chuyến xe #${newLoc?.key}`}
+            centered
+            open={modeEdit}
+            onCancel={() => {
+              setModeEdit(false)
+              cancel()
+            }}
+            okButtonProps={{ hidden: true }}
+            cancelButtonProps={{ hidden: true }}
+          // onOk={() => handleCreateUser()}
+          // onCancel={() => setModeCreate(false)}
+          >
+            <BaseCard id="car-form" title={'Sửa thông tin chuyến xe'} padding="1.25rem">
+              <StepForm modeEdit={modeEdit} handleSuccessEdit={handleSuccessEdit} stageData={stageData} driverData={driverData} handleSuccessCreate={handleSuccessCreate} oldTrip = {newLoc}/>
             </BaseCard>
           </BaseModal>
         )

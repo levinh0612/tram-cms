@@ -52,6 +52,7 @@ export const Table: React.FC = () => {
   const [newLoc, setNewLoc] = useState<any>();
   const [stageChoose, setStageChoose] = useState<any>();
   const [newStage, setNewStage] = useState<any>();
+  const [modeUpdate, setModeUpdate] = useState<boolean>();
 
   const navigate = useNavigate();
 
@@ -151,6 +152,11 @@ float: right;
     fetch(initialPagination);
   }
 
+  const handleSuccessUpdate = () => {
+    setModeUpdate(false)
+    fetch(initialPagination);
+  }
+
   const handleSuccessCreateTrip = () => {
     setOpenDialogCreateTrip(false)
     navigate('/trips')
@@ -170,9 +176,10 @@ float: right;
   const isEditing = (record: StageTableRow) => record.key === editingKey;
 
   const edit = (record: Partial<CarTableRow> & { key: React.Key }) => {
-    form.setFieldsValue({ name: '', number_plate: '', ...record });
-    setEditingKey(record.key);
+    // form.setFieldsValue({ name: '', number_plate: '', ...record });
+    // setEditingKey(record.key);
     setNewStage(record)
+    setModeUpdate(true)
   };
 
   const createTrip = (record: Partial<StageTableRow> & { key: React.Key }) => {
@@ -233,37 +240,11 @@ float: right;
       render: (property: any, record: StageTableRow) => {
         const editable = isEditing(record);
         return (
-          editable ? (
-            <>
-              <BaseInput
-                placeholder={'Nhập tên tiếng Việt'}
-                value={newLoc?.from_location_name}
-                onChange={(val) => {
-                  if (val.target.value) {
-                    console.log('New Value:', val.target.value);
-                    setNewLoc({ ...newLoc, from_location_name: val.target.value });
-                  } else {
-                    console.log('Resetting to original value');
-                    setNewLoc(record);
-                  }
-                }}
-              />
-
-              <BaseInput placeholder={'Nhập tên tiếng Anh'} value={newLoc?.en_name} onChange={(val => {
-                if (val.target.value) {
-                  setNewLoc({ ...newLoc, en_name: val.target.value })
-                } else {
-                  setNewLoc(record)
-                }
-              })} />
-            </>
-          ) : (
             <BaseRow gutter={[10, 10]}>
               <BaseCol >
                 <p>{record?.from_location_name} </p>
               </BaseCol>
             </BaseRow>
-          )
         )
       }
     },
@@ -272,33 +253,8 @@ float: right;
       dataIndex: 'to_location_name',
       width: 200,
       render: (status: any, record: StageTableRow) => {
-        const editable = isEditing(record);
         return (
-          editable ? (
-            <>
-              <BaseInput
-                placeholder={'Nhập giờ mở cửa'}
-                value={newLoc?.started_at}
-                onChange={(val) => {
-                  if (val.target.value) {
-                    console.log('New Value:', val.target.value);
-                    setNewLoc({ ...newLoc, started_at: val.target.value });
-                  } else {
-                    console.log('Resetting to original value');
-                    setNewLoc(record);
-                  }
-                }}
-              />
-
-              <BaseInput placeholder={'Nhập giờ đóng cửa'} value={newLoc?.closed_at} onChange={(val => {
-                if (val.target.value) {
-                  setNewLoc({ ...newLoc, closed_at: val.target.value })
-                } else {
-                  setNewLoc(record)
-                }
-              })} />
-            </>
-          ) : (
+         
             <BaseRow gutter={[10, 10]}>
               <BaseCol >
                 <p>
@@ -309,7 +265,6 @@ float: right;
               </BaseCol>
             </BaseRow>
           )
-        )
       }
     },
     {
@@ -320,22 +275,7 @@ float: right;
         const editable = isEditing(record);
 
         return (
-          editable ? (
-            <>
-              <BaseInput
-                placeholder={'Giá'}
-                value={newLoc?.x}
-                onChange={(val) => {
-                  if (val.target.value) {
-                    setNewLoc({ ...newLoc, price: val.target.value });
-                  } else {
-                    setNewLoc(record);
-                  }
-                }}
-              />
-
-            </>
-          ) : (
+          
 
             <BaseRow gutter={[10, 10]}>
               <BaseCol >
@@ -351,7 +291,6 @@ float: right;
               </BaseCol>
             </BaseRow>
           )
-        )
       }
     },
     {
@@ -460,25 +399,28 @@ float: right;
         )
       }
       {
-        modeCreate && (
+        (modeCreate || modeUpdate) && (
           <BaseModal
             size='medium'
-            title={'Tạo chặng xe'}
+            title={modeUpdate ? 'Cập nhật chặng xe' : 'Tạo chặng xe'}
             centered
-            open={modeCreate}
-            onCancel={() => setModeCreate(false)}
+            open={modeCreate || modeUpdate}
+            onCancel={() => {
+              setModeCreate(false)
+              setModeUpdate(false)}
+            }
             okButtonProps={{ hidden: true }}
             cancelButtonProps={{ hidden: true }}
           // onOk={() => handleCreateUser()}
           // onCancel={() => setModeCreate(false)}
           >
             <BaseCard id="car-form" title={'Điền thông tin chặng xe'} padding="1.25rem">
-              <StepForm handleSuccessCreate={handleSuccessCreate} locationData={tableData?.locationData}/>
+              <StepForm handleSuccessCreate={handleSuccessCreate} locationData={tableData?.locationData} handleSuccessUpdate={handleSuccessUpdate} newStage = {newStage} modeUpdate = {modeUpdate}/>
             </BaseCard>
           </BaseModal>
         )
       }
-      {
+      {/* {
         openDialogCreateTrip && (
           <BaseModal
             size='medium'
@@ -496,7 +438,7 @@ float: right;
             </BaseCard>
           </BaseModal>
         )
-      }
+      } */}
 
       <BaseSpace style={{ margin: '8px', display: 'flex', justifyContent: 'flex-end' }}>
         <BaseButton type='primary' onClick={() => setModeCreate(true)}>Thêm</BaseButton>

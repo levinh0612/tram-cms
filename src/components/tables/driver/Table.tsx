@@ -151,6 +151,8 @@ float: right;
           setEditingKey(0);
           fetch(tableData.pagination);
           setOpenDialogConfirm(false);
+          setSelectedOption(null);
+
       }).catch(err => {
         notificationController.error({ message: err.message || err });
         setTableData({ ...tableData, loading: false });
@@ -194,6 +196,7 @@ float: right;
 
   const cancel = () => {
     setEditingKey(0);
+    setSelectedOption(null);
   };
 
   const save = async (key: React.Key) => {
