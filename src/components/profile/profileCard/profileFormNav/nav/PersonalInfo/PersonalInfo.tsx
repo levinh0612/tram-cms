@@ -25,7 +25,7 @@ import { BaseCol } from '@app/components/common/BaseCol/BaseCol';
 
 interface PersonalInfoFormValues {
   birthday?: string;
-  lastName: string;
+  last_name: string;
   country?: string;
   website: string;
   city?: string;
@@ -38,15 +38,15 @@ interface PersonalInfoFormValues {
   language?: string;
   linkedin: string;
   zipcode: string;
-  firstName: string;
+  first_name: string;
   twitter: string;
   phone: string;
   email: string;
 }
 
 const initialPersonalInfoValues: PersonalInfoFormValues = {
-  firstName: '',
-  lastName: '',
+  first_name: '',
+  last_name: '',
   nickName: '',
   sex: undefined,
   birthday: undefined,
@@ -76,17 +76,17 @@ export const PersonalInfo: React.FC = () => {
       user
         ? {
             fullname: user.fullname,
-            firstName: user.firstName,
-            lastName: user.lastName,
-            email: user.email.name,
-            phone: user.phone.number,
+            firstName: user.first_name,
+            lastName: user.last_name,
+            email: user.email,
+            phone: user.phone,
             nickname: user.username,
-            sex: user.sex,
+            sex: user.gender,
             birthday: Dates.getDate(user.birthday),
             language: user.lang,
             country: user.country,
             city: user.city,
-            address1: user.address1,
+            address1: user.address,
             address2: user?.address2,
             zipcode: user.zipcode,
             website: user?.website,
@@ -131,7 +131,7 @@ export const PersonalInfo: React.FC = () => {
         <BaseRow gutter={{ xs: 10, md: 15, xl: 30 }}>
           <BaseCol span={24}>
             <BaseButtonsForm.Item>
-              <BaseButtonsForm.Title>{t('profile.nav.personalInfo.title')}</BaseButtonsForm.Title>
+              <BaseButtonsForm.Title>Thông tin</BaseButtonsForm.Title>
             </BaseButtonsForm.Item>
           </BaseCol>
 
@@ -155,13 +155,9 @@ export const PersonalInfo: React.FC = () => {
             <BirthdayItem />
           </BaseCol>
 
-          <BaseCol xs={24} md={12}>
-            <LanguageItem />
-          </BaseCol>
-
           <BaseCol span={24}>
             <BaseButtonsForm.Item>
-              <BaseButtonsForm.Title>{t('profile.nav.personalInfo.contactInfo')}</BaseButtonsForm.Title>
+              <BaseButtonsForm.Title>Thông tin liên lạc</BaseButtonsForm.Title>
             </BaseButtonsForm.Item>
           </BaseCol>
 
@@ -179,39 +175,11 @@ export const PersonalInfo: React.FC = () => {
             </BaseButtonsForm.Item>
           </BaseCol>
 
-          <BaseCol xs={24} md={12}>
-            <CountriesItem />
-          </BaseCol>
-
-          <BaseCol xs={24} md={12}>
-            <CitiesItem />
-          </BaseCol>
-
-          <BaseCol xs={24} md={12}>
+          <BaseCol xl={24} md={12}>
             <AddressItem number={1} />
           </BaseCol>
 
-          <BaseCol xs={24} md={12}>
-            <AddressItem number={2} />
-          </BaseCol>
 
-          <BaseCol xs={24} md={12}>
-            <ZipcodeItem />
-          </BaseCol>
-
-          <BaseCol span={24}>
-            <BaseButtonsForm.Item>
-              <BaseButtonsForm.Title>{t('profile.nav.personalInfo.otherInfo')}</BaseButtonsForm.Title>
-            </BaseButtonsForm.Item>
-          </BaseCol>
-
-          <BaseCol xs={24} md={12}>
-            <WebsiteItem />
-          </BaseCol>
-
-          <BaseCol span={24}>
-            <SocialLinksItem />
-          </BaseCol>
         </BaseRow>
       </BaseButtonsForm>
     </BaseCard>

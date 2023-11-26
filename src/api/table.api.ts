@@ -318,6 +318,15 @@ export const topStage = (payload : any): Promise<Response> => {
     })
   });
 };
+export const getBalance = (payload : any): Promise<Response> => {
+  return new Promise((res, rej) => {
+    httpApi.post<Response>('api/trip/balance', { ...payload }).then(({ data }) => {
+      return res(data);
+    }).catch(err => {
+      return rej(err);
+    })
+  });
+};
 export const editLocation = (payload : any): Promise<Response> => {
   return new Promise((res, rej) => {
     httpApi.post<Response>('api/location/edit', { ...payload }).then(({ data }) => {

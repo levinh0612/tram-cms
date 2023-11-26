@@ -9,7 +9,7 @@ export const ProfileOverlay: React.FC = ({ ...props }) => {
   return (
     <div {...props}>
       <S.Text>
-        <Link to="/profile">{t('profile.title')}</Link>
+        <Link to="/profile">Trang cá nhân</Link>
       </S.Text>
       <S.ItemsDivider />
       <S.Text>

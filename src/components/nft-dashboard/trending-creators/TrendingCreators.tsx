@@ -40,7 +40,6 @@ export const TrendingCreators: React.FC = () => {
         }
       }));
     })
-    getTrendingCreators().then((res) => setStories(res));
   }, []);
 
   return (

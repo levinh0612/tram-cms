@@ -12,7 +12,7 @@ export const References: React.FC = () => {
         </a>
         in 2023 &copy;. 
       </S.Text>
-      <S.Icons>
+      {/* <S.Icons>
         <a href="https://github.com/altence/lightence-admin" target="_blank" rel="noreferrer">
           <GithubOutlined />
         </a>
@@ -25,7 +25,7 @@ export const References: React.FC = () => {
         <a href="https://linkedin.com/company/altence" target="_blank" rel="noreferrer">
           <LinkedinOutlined />
         </a>
-      </S.Icons>
+      </S.Icons> */}
     </S.ReferencesWrapper>
   );
 };

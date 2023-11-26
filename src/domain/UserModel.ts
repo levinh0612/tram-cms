@@ -3,6 +3,8 @@ export interface UserModel {
   fullname: string,
   firstName: string;
   lastName: string;
+  first_name: string;
+  last_name: string;
   imgUrl: string;
   username: string;
   email: {
@@ -14,6 +16,7 @@ export interface UserModel {
     verified: boolean;
   };
   sex: 'male' | 'female';
+  gender: 'male' | 'female';
   birthday: string;
   lang: 'en' | 'de' | 'vi';
   country: string;

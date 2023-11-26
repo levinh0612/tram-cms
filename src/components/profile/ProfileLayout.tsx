@@ -33,7 +33,7 @@ const ProfileLayout: React.FC = () => {
 
   return (
     <>
-      <PageTitle>{t('profile.title')}</PageTitle>
+      <PageTitle>Trang cá nhân</PageTitle>
       {!isTitleShown && (
         <Btn icon={<LeftOutlined />} type="text" onClick={() => navigate('/profile')}>
           {t('common.back')}
@@ -49,9 +49,9 @@ const ProfileLayout: React.FC = () => {
                   <ProfileInfo profileData={user} />
                 </BaseCol>
 
-                <BaseCol xs={24} md={12} xl={24}>
+                {/* <BaseCol xs={24} md={12} xl={24}>
                   <ProfileNav />
-                </BaseCol>
+                </BaseCol> */}
               </BaseRow>
             </ProfileCard>
           </BaseCol>

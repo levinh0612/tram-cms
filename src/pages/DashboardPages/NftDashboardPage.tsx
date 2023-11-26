@@ -44,13 +44,13 @@ const MedicalDashboardPage: React.FC = () => {
           <Balance />
         </div>
         <S.Space />
-        <div id="total-earning">
+        {/* <div id="total-earning">
           <TotalEarning />
-        </div>
+        </div> */}
         <S.Space />
-        <S.ScrollWrapper id="activity-story">
+        {/* <S.ScrollWrapper id="activity-story">
           <ActivityStory />
-        </S.ScrollWrapper>
+        </S.ScrollWrapper> */}
       </S.RightSideCol>
     </BaseRow>
   );

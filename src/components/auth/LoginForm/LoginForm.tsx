@@ -41,47 +41,46 @@ export const LoginForm: React.FC = () => {
   return (
     <Auth.FormWrapper>
       <BaseForm layout="vertical" onFinish={handleSubmit} requiredMark="optional" initialValues={initValues}>
-        <Auth.FormTitle>{t('common.login')}</Auth.FormTitle>
-        <S.LoginDescription>{t('login.loginInfo')}</S.LoginDescription>
+        <Auth.FormTitle>Đăng nhập</Auth.FormTitle>
         <Auth.FormItem
           name="username"
-          label={t('common.email')}
-          rules={[{ required: true, message: t('common.requiredField') }]}
+          label={'Tài khoản'}
+          rules={[{ required: true, message: "Vui lòng nhập trường này!" }]}
 
         >
-          <Auth.FormInput placeholder={t('common.email')} />
+          <Auth.FormInput placeholder={'Tài khoản'} />
         </Auth.FormItem>
         <Auth.FormItem
-          label={t('common.password')}
+          label={'Mật khẩu'}
           name="password"
-          rules={[{ required: true, message: t('common.requiredField') }]}
+          rules={[{ required: true, message: "Vui lòng nhập trường này!" }]}
         >
-          <Auth.FormInputPassword placeholder={t('common.password')} />
+          <Auth.FormInputPassword placeholder={'Mật khẩu'} />
         </Auth.FormItem>
         <Auth.ActionsWrapper>
           <BaseForm.Item name="rememberMe" valuePropName="checked" noStyle>
             <Auth.FormCheckbox>
-              <S.RememberMeText>{t('login.rememberMe')}</S.RememberMeText>
+              <S.RememberMeText>Ghi nhớ đăng nhập</S.RememberMeText>
             </Auth.FormCheckbox>
           </BaseForm.Item>
-          <Link to="/auth/forgot-password">
+          {/* <Link to="/auth/forgot-password">
             <S.ForgotPasswordText>{t('common.forgotPass')}</S.ForgotPasswordText>
-          </Link>
+          </Link> */}
         </Auth.ActionsWrapper>
         <BaseForm.Item noStyle>
           <Auth.SubmitButton type="primary" htmlType="submit" loading={isLoading}>
-            {t('common.login')}
+            Đăng nhập
           </Auth.SubmitButton>
         </BaseForm.Item>
-        <BaseForm.Item noStyle>
+        {/* <BaseForm.Item noStyle>
           <Auth.SocialButton type="default" htmlType="submit">
             <Auth.SocialIconWrapper>
               <GoogleIcon />
             </Auth.SocialIconWrapper>
             {t('login.googleLink')}
           </Auth.SocialButton>
-        </BaseForm.Item>
-        <BaseForm.Item noStyle>
+        </BaseForm.Item> */}
+        {/* <BaseForm.Item noStyle>
           <Auth.SocialButton type="default" htmlType="submit">
             <Auth.SocialIconWrapper>
               <FacebookIcon />
@@ -96,7 +95,7 @@ export const LoginForm: React.FC = () => {
               <Auth.LinkText>{t('common.here')}</Auth.LinkText>
             </Link>
           </Auth.Text>
-        </Auth.FooterWrapper>
+        </Auth.FooterWrapper> */}
       </BaseForm>
     </Auth.FormWrapper>
   );
