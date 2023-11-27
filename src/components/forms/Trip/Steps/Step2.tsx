@@ -1,5 +1,5 @@
 import * as S from '../StepForm.styles';
-
+import moment from 'moment';
 interface Field {
   name?: string;
   value: string;
@@ -10,20 +10,14 @@ interface Step3Props {
 }
 
 export const Step3: React.FC<any> = ({ formValues, price, locationData,stageData, driverData }) => {
-  const translateVi = (id: number) => {
-    const findItem = locationData.find((item: any) => item.id == id);
-    if (findItem) {
-      return `${findItem.vi_name} - (${findItem.en_name})`;
-    }
-    return '';
-  }
+ console.log("🚀 ~ file: Step2.tsx:13 ~ formValues:", formValues)
+ 
   return (
     <S.Details key="4">
       {formValues
         .filter((item: { value: any; }) => !!item.value)
         .map((item: Field, index: number) => {
           const stageTarget = stageData.find((stage:any) => stage.key == item.value);
-          console.log("🚀 ~ file: Step2.tsx:26 ~ stageData:", stageData)
           const driverTarget = driverData.find((stage:any) => stage.id == item.value);
           if(item.name === 'Tuyến xe' && stageTarget){
             return (
@@ -40,7 +34,15 @@ export const Step3: React.FC<any> = ({ formValues, price, locationData,stageData
                 <S.DetailsValue>{driverTarget.first_name} {driverTarget.last_name}</S.DetailsValue>
               </S.DetailsRow>
             );
-          } else {
+          } else if(item.name === 'Thời gian khởi hành') {
+            return (
+              <S.DetailsRow key={index}>
+                <S.DetailsTitle>{item.name}</S.DetailsTitle>
+                <S.DetailsValue>{moment(item.value).format('DD-MM-YYYY HH:mm:ss')}</S.DetailsValue>
+              </S.DetailsRow>
+            );
+          } 
+          else {
             return (
               <S.DetailsRow key={index}>
                 <S.DetailsTitle>{item.name}</S.DetailsTitle>

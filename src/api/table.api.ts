@@ -40,6 +40,7 @@ export interface StageTableRow {
 }
 
 export interface TripTableRow {
+  moved_at: string;
   driver_id: number;
   total_ticket: number;
   total_ticket_slot: number;

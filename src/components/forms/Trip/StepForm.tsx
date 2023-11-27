@@ -11,6 +11,8 @@ import * as S from './StepForm.styles';
 import { Steps } from './StepForm.styles';
 import { PayloadCreateUser, createTrip, editTrip } from '@app/api/table.api';
 import { useMounted } from '@app/hooks/useMounted';
+import moment from 'moment';
+import dayjs from 'dayjs';
 interface FormValues {
   [key: string]: string | undefined;
 }
@@ -31,12 +33,12 @@ interface StepFormProps {
 
 export const StepForm: React.FC<StepFormProps> = (props) => {
   const {handleSuccessCreate, stageData, driverData, handleSuccessEdit, modeEdit, oldTrip} = props;
-  console.log("🚀 ~ file: StepForm.tsx:34 ~ oldTrip:", oldTrip)
   const [current, setCurrent] = useState(0);
   const [form] = BaseForm.useForm();
   const [price, setPrice] = useState<number>(0);
   const [fields, setFields] = useState<FieldData[]>([
     { name: 'stageId', value: oldTrip?.stage_id || ""},
+    { name: 'startTime', value: oldTrip?.started_at ? dayjs(oldTrip?.started_at, 'DD/MM/YYYY HH:mm:ss') : dayjs().add(1, 'day') },
     { name: 'driverId', value: oldTrip?.driver_id ||'' },
     { name: 'countSlot', value: oldTrip?.total_slot_trip || '' },
   ]);
@@ -46,6 +48,7 @@ export const StepForm: React.FC<StepFormProps> = (props) => {
 
   const formLabels: FormValues = {
     stageId: 'Tuyến xe',
+    startTime: "Thời gian khởi hành",
     driverId: 'Tài xế',
     countSlot: "Tổng số chỗ ngồi"
   };

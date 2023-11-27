@@ -355,7 +355,8 @@ float: right;
           <BaseRow gutter={[10, 10]}>
               <BaseCol >
                 <p> Ngày tạo: {record.created_at || "Chưa có"} </p>
-                <p> Ngày bắt đầu: {record.started_at || "Chưa có"} </p>
+                <p> Ngày khởi hành: {record.started_at || "Chưa có"} </p>
+                <p> Ngày lăn bánh: {record.moved_at || "Chưa có"} </p>
                 <p> Ngày hoàn thành: {record.finished_at || "Chưa có"} </p>
               </BaseCol>
             </BaseRow>

@@ -6,7 +6,12 @@ import { BaseSelect, Option  } from '@app/components/common/selects/BaseSelect/B
 
 import * as S from '../StepForm.styles';
 import { useEffect, useState } from 'react';
+import { BaseDatePicker } from '@app/components/common/pickers/BaseDatePicker';
+import styled from 'styled-components';
 
+const Picker = styled(BaseDatePicker)`
+  width: 100%;
+`;
 export const Step1: React.FC<any> = (props) => {
   const {stageData, formValues, price, setPrice, driverData} = props;
   const { t } = useTranslation();
@@ -31,7 +36,15 @@ export const Step1: React.FC<any> = (props) => {
             }
         </BaseSelect>
       </BaseForm.Item>
-            
+
+      <BaseForm.Item
+        name="startTime"
+        label={'Thời gian khởi hành'}
+        rules={[{ required: true, message: 'Vui lòng nhập thời gian khởi hành!'}]}
+      >
+        <Picker format="DD-MM-YYYY HH:mm:ss" />
+      </BaseForm.Item>
+
       <BaseForm.Item
         name="driverId"
         label={"Chọn tài xế"}
