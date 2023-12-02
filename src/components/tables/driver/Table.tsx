@@ -227,9 +227,10 @@ float: right;
   };
 
   const columns: ColumnsType<DriverTableRow> = [
+    {title: 'Mã', dataIndex: 'key', width: 100},
     {
       title: t('common.name'),
-      dataIndex: 'name',
+      dataIndex: 'Tên',
       width: 300,
       fixed: 'left',
       render: (text: string, record: DriverTableRow) => {

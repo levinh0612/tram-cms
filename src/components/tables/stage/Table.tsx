@@ -233,6 +233,7 @@ float: right;
   };
 
   const columns: ColumnsType<StageTableRow> = [
+    {title: 'Mã', dataIndex: 'key', width: 100},
     {
       title: 'Điểm đi',
       dataIndex: 'from_location_name',
@@ -402,7 +403,7 @@ float: right;
         (modeCreate || modeUpdate) && (
           <BaseModal
             size='medium'
-            title={modeUpdate ? 'Cập nhật tuyến xe' : 'Tạo tuyến xe'}
+            title={modeUpdate ? `Cập nhật tuyến xe #${newStage.id}` : 'Tạo tuyến xe'}
             centered
             open={modeCreate || modeUpdate}
             onCancel={() => {

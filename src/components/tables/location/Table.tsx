@@ -248,6 +248,7 @@ float: right;
   };
 
   const columns: ColumnsType<LocationTableRow> = [
+    {title: 'Mã', dataIndex: 'key', width: 100},
     {
       title: 'Tên',
       dataIndex: 'vi_name',

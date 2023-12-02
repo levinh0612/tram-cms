@@ -225,6 +225,7 @@ float: right;
   };
 
   const columns: ColumnsType<CarTableRow> = [
+    {title: 'Mã', dataIndex: 'key', width: 100},
     {
       title: 'Tên',
       dataIndex: 'name',

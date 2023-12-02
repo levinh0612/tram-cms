@@ -238,6 +238,7 @@ float: right;
     }
 
   const columns: ColumnsType<TripTableRow> = [
+    {title: 'Mã', dataIndex: 'key', width: 100},
     {
       title: 'Điểm đi',
       dataIndex: 'from_location_name',
