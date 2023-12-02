@@ -17,6 +17,7 @@ export const Step1: React.FC<any> = (props) => {
   const { t } = useTranslation();
   const [errMess, setErrMess] = useState<string>('');
   const [mess, setMess] = useState<string>('');
+  const numberRegex = /^-?\d+(\.\d+)?$/;
 
   return (
     <S.FormContent>
@@ -65,7 +66,7 @@ export const Step1: React.FC<any> = (props) => {
         name="countSlot"
         label={"Số lượng chỗ"}
         rules={[{ required: true, message: "Vui lòng điền vào!" }, {
-          type: 'number', message: 'Vui nhập SL hợp lệ!'
+          pattern: numberRegex, message: 'Vui nhập SL hợp lệ!'
         }]}
       >
           <BaseInput />
