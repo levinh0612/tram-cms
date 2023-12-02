@@ -15,20 +15,32 @@ export const Step1: React.FC = () => {
       </S.Select>
     </BaseForm.Item>
   );
+  const phoneRegex = /^[0-9]+$/;
 
   return (
     <S.FormContent>
       <S.PhoneItem
         name="phone"
         label={t('common.phone')}
-        rules={[{ required: true, message: t('forms.stepFormLabels.phoneError') }]}
+        rules={[
+          {
+            required: true,
+            message: 'Vui lòng nhập SĐT!',
+          },
+          {
+            pattern: phoneRegex,
+            message: 'Vui lòng nhập SĐT hợp lệ!',
+          },
+        ]}
       >
         <BaseInput addonBefore={prefixSelector} />
       </S.PhoneItem>
       <BaseForm.Item
         name="username"
         label={"Tên đăng nhập"}
-        rules={[{ required: true, message: t('forms.stepFormLabels.loginError') }]}
+        rules={[{ required: true, message: 'Vui lòng tên đăng nhập' }, 
+        { max: 20, message: 'Tên đăng nhập tối đa là 20 ký tự!' }
+      ]}
       >
         <BaseInput />
       </BaseForm.Item>
@@ -38,7 +50,7 @@ export const Step1: React.FC = () => {
         rules={[
           {
             type: 'email',
-            message: t('common.notValidEmail'),
+            message: 'Vui lòng nhập email hợp lệ!',
           },
         ]}
       >

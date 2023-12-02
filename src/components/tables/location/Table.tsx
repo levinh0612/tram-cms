@@ -83,7 +83,8 @@ float: right;
       </Link>
     </span>
   );
-
+  const timeRegex = /^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/;
+  const coordinateRegex = /^-?\d+(\.\d+)?$/;
   const renderItem = (title: string, count: number) => ({
     value: title,
     label: (
@@ -164,38 +165,78 @@ float: right;
   const cancel = () => {
     setEditingKey(0);
   };
-  
+
+  const check = (val: any, type: string) => {
+    if(type === 'time') {
+      return val ? timeRegex.test(val) : false
+    } else {
+      if(val) {
+        return coordinateRegex.test(val)
+      } else return true
+    }
+  }
+
+  const checkValue = () => {
+    const timeOpen = newLoc.started_at;
+    const timeClose = newLoc.closed_at;
+    const xValue = newLoc.x;
+    const yValue = newLoc.y;
+    const zValue = newLoc.z;
+    let flag = true;
+    if(!check(timeOpen, 'time')) {
+      notificationController.error({
+        message: "Giờ mở cửa không hợp lệ!",
+      })
+      flag = false;
+    }
+    if(!check(timeClose, 'time')) {
+      notificationController.error({
+        message: "Giờ đóng cửa không hợp lệ!",
+      })
+      flag = false;
+    }
+    if(!check(xValue, 'cordinate') || !check(yValue, 'cordinate') || !check(zValue, 'cordinate')) {
+      notificationController.error({
+        message: "Toạ độ không hợp lệ!",
+      })
+      flag = false;
+    }
+    return flag;
+  }
   const save = async (key: React.Key) => {
     try {
-      
-      await editLocation(newLoc)
-        .then(res=> {
-          const newData = [...tableData.data];
-          const index = newData.findIndex((item) => res?.data === item.key);
-          if (index > -1) {
-            const item = newData[index];
-            newData.splice(index, 1, {
-              ...item,
-              ...newLoc,
-            });
-            setTableData({ ...tableData, data: newData });
-          }
-          notificationController.success({
-            message: 'Chúc mừng bạn',
-            description: `Đã thay đổi thành công thông tin địa điểm`,
-          });
-        })
-        .catch(err => {
-          BaseModal.error({
-            title: "Có lỗi xảy ra",
-            content: err,
-            onOk: () => {
-              setTableData({ ...tableData, loading: false });
+      const bool = checkValue();
+      console.log("🚀 ~ file: Table.tsx:207 ~ save ~ bool:", bool)
+      if(bool) {
+        await editLocation(newLoc)
+          .then(res=> {
+            const newData = [...tableData.data];
+            const index = newData.findIndex((item) => res?.data === item.key);
+            if (index > -1) {
+              const item = newData[index];
+              newData.splice(index, 1, {
+                ...item,
+                ...newLoc,
+              });
+              setTableData({ ...tableData, data: newData });
             }
-          });
-        })
-      // setTableData({ ...tableData, data: newData });
-      setEditingKey(0);
+            notificationController.success({
+              message: 'Chúc mừng bạn',
+              description: `Đã thay đổi thành công thông tin địa điểm`,
+            });
+          })
+          .catch(err => {
+            BaseModal.error({
+              title: "Có lỗi xảy ra",
+              content: err,
+              onOk: () => {
+                setTableData({ ...tableData, loading: false });
+              }
+            });
+          })
+        // setTableData({ ...tableData, data: newData });
+        setEditingKey(0);
+      }
     } catch (errInfo) {
       BaseModal.error({
         title: "Có lỗi xảy ra",
@@ -262,7 +303,6 @@ float: right;
                 value={newLoc?.started_at}
                 onChange={(val) => {
                   if (val.target.value) {
-                    console.log('New Value:', val.target.value);
                     setNewLoc({ ...newLoc, started_at: val.target.value });
                   } else {
                     console.log('Resetting to original value');

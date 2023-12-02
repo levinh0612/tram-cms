@@ -11061,6 +11061,8 @@ __metadata:
     less: ^4.1.2
     less-plugin-clean-css: ^1.5.1
     lint-staged: ^11.0.0
+    moment: ^2.29.4
+    momentjs: ^2.0.0
     pigeon-maps: ^0.19.7
     prettier: ^2.3.1
     react: ^18.2.0
@@ -11953,10 +11955,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"moment@npm:^2.24.0, moment@npm:^2.29.2":
+"moment@npm:^2.24.0, moment@npm:^2.29.2, moment@npm:^2.29.4":
   version: 2.29.4
   resolution: "moment@npm:2.29.4"
   checksum: 0ec3f9c2bcba38dc2451b1daed5daded747f17610b92427bebe1d08d48d8b7bdd8d9197500b072d14e326dd0ccf3e326b9e3d07c5895d3d49e39b6803b76e80e
+  languageName: node
+  linkType: hard
+
+"momentjs@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "momentjs@npm:2.0.0"
+  checksum: 797a481a8566f8b2fdd18cdd77678ec1db410df2faef71d24e63cadfc21fe775cb05f4994ebe918646318fdbc9f20a66989a9c25b9464dc69efdb47cc1d512d6
   languageName: node
   linkType: hard
 

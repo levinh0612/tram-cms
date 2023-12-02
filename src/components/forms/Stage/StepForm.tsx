@@ -9,7 +9,7 @@ import { Dates } from '@app/constants/Dates';
 import { mergeBy } from '@app/utils/utils';
 import * as S from './StepForm.styles';
 import { Steps } from './StepForm.styles';
-import { PayloadCreateUser, createStage } from '@app/api/table.api';
+import { PayloadCreateUser, createStage, editStage } from '@app/api/table.api';
 import { useMounted } from '@app/hooks/useMounted';
 interface FormValues {
   [key: string]: string | undefined;
@@ -23,19 +23,20 @@ interface FieldData {
 interface StepFormProps {
   handleSuccessCreate: () => void; // Replace with the actual prop type
   locationData?: any;
-  handleSuccessUpdate?: () => void;
+  handleSuccessUpdate: () => void;
   newStage?: any;
   modeUpdate?: boolean;
 }
 
 export const StepForm: React.FC<StepFormProps> = (props) => {
-  const {handleSuccessCreate, locationData, handleSuccessUpdate, newStage, modeUpdate} = props;
+  const { handleSuccessCreate, locationData, handleSuccessUpdate, newStage, modeUpdate } = props;
+  console.log("🚀 ~ file: StepForm.tsx:33 ~ newStage:", newStage)
   const [current, setCurrent] = useState(0);
   const [form] = BaseForm.useForm();
   const [price, setPrice] = useState<number>(0);
   const [fields, setFields] = useState<FieldData[]>([
-    { name: 'fromLocation', value: '' },
-    { name: 'toLocation', value: '' },
+    { name: 'fromLocation', value: modeUpdate ? newStage.from_location_id : '' },
+    { name: 'toLocation', value: modeUpdate ? newStage.to_location_id : '' },
   ]);
   const [isLoading, setIsLoading] = useState(false);
   const { t } = useTranslation();
@@ -44,7 +45,7 @@ export const StepForm: React.FC<StepFormProps> = (props) => {
   const formLabels: FormValues = {
     fromLocation: 'Nơi đi',
     toLocation: 'Nơi đến',
-  
+
   };
 
   const formValues = fields
@@ -67,18 +68,43 @@ export const StepForm: React.FC<StepFormProps> = (props) => {
 
   const onFinish = () => {
     setIsLoading(true);
+    if (modeUpdate) {
+      // Create an empty payload object
+      const payload: PayloadCreateUser = {};
 
-   // Create an empty payload object
-const payload: PayloadCreateUser = {};
+      // Iterate through formValues and populate the payload object
+      formValues.forEach((item) => {
+        // Check if the field in the item matches one of the fields in PayloadCreateUser
+        if (item.field) {
+          payload[item.field] = item.value;
+        }
+      });
+        editStage({ ...payload, price: price, id: newStage.id }).then((res) => {
+        const rs = res.data;
+        if (isMounted.current) {
+          notificationController.success({
+            message: 'Chúc mừng bạn',
+            description: rs?.msg || "",
+          });
+          setIsLoading(false);
+          handleSuccessUpdate()
+        }
+      }).catch(err => {
+        setIsLoading(false);
+        notificationController.error({ message: err.message || err });
+      })
+    } else {
+      // Create an empty payload object
+      const payload: PayloadCreateUser = {};
 
-// Iterate through formValues and populate the payload object
-formValues.forEach((item) => {
-  // Check if the field in the item matches one of the fields in PayloadCreateUser
-  if (item.field) {
-    payload[item.field] = item.value;
-  }
-});
-      createStage({...payload, price: price}).then((res) => {
+      // Iterate through formValues and populate the payload object
+      formValues.forEach((item) => {
+        // Check if the field in the item matches one of the fields in PayloadCreateUser
+        if (item.field) {
+          payload[item.field] = item.value;
+        }
+      });
+      createStage({ ...payload, price: price }).then((res) => {
         const rs = res.data;
         if (isMounted.current) {
           notificationController.success({
@@ -90,15 +116,9 @@ formValues.forEach((item) => {
         }
       }).catch(err => {
         setIsLoading(false);
-        notificationController.error({ message: err.message || err});
+        notificationController.error({ message: err.message || err });
       })
-    
-
-    // setTimeout(() => {
-    //   notificationController.success({ message: t('common.success') });
-    //   setIsLoading(false);
-    //   setCurrent(0);
-    // }, 1500);
+    }
   };
 
   const steps = [
@@ -111,8 +131,8 @@ formValues.forEach((item) => {
   ];
 
   const formFieldsUi = [
-    <Step1 key="1" locationData={locationData} formValues={formValues} price={price} setPrice={setPrice} newStage={newStage}/>,
-    <Step3 key="2" formValues={formValues} price={price} locationData={locationData}/>,
+    <Step1 key="1" locationData={locationData} formValues={formValues} price={price} setPrice={setPrice} newStage={newStage} />,
+    <Step3 key="2" formValues={formValues} price={price} locationData={locationData} />,
   ];
 
   return (

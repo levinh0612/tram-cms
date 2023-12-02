@@ -6,6 +6,8 @@ import * as S from '../StepForm.styles';
 
 export const Step1: React.FC = () => {
   const { t } = useTranslation();
+  const timeRegex = /^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/;
+  const coordinateRegex = /^-?\d+(\.\d+)?$/;
 
   return (
     <S.FormContent>
@@ -27,6 +29,8 @@ export const Step1: React.FC = () => {
       <BaseForm.Item
         name="startedAt"
         label={"Giờ mở cửa"}
+        rules={[{ required: true, message: "Vui là nhập giờ mở cửa!" }, { 
+        pattern: timeRegex, message: 'Vui là nhập giờ mở cửa hợp lệ!' }]}
       >
         <BaseInput />
       </BaseForm.Item>
@@ -34,6 +38,8 @@ export const Step1: React.FC = () => {
       <BaseForm.Item
         name="closedAt"
         label={"Giờ đóng cửa"}
+        rules={[{ required: true, message: "Vui là nhập giờ đóng cửa!" }, {
+        pattern: timeRegex, message: 'Vui là nhập giờ đóng cửa hợp lệ!' }]}
       >
         <BaseInput />
       </BaseForm.Item>
@@ -41,6 +47,7 @@ export const Step1: React.FC = () => {
       <BaseForm.Item
         name="x"
         label={"Toạ độ x"}
+        rules={[{ pattern: coordinateRegex, message: "Vui là nhap toa do x!" }]}
       >
         <BaseInput />
       </BaseForm.Item>
@@ -48,6 +55,8 @@ export const Step1: React.FC = () => {
       <BaseForm.Item
         name="y"
         label={"Toạ độ y"}
+        rules={[{ pattern: coordinateRegex, message: "Vui là nhap toa do x!" }]}
+
       >
         <BaseInput />
       </BaseForm.Item>
@@ -55,6 +64,8 @@ export const Step1: React.FC = () => {
       <BaseForm.Item
         name="z"
         label={"Toạ độ z"}
+        rules={[{ pattern: coordinateRegex, message: "Vui là nhap toa do x!" }]}
+
       >
         <BaseInput />
       </BaseForm.Item>

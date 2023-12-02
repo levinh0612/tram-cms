@@ -18,7 +18,6 @@ export const Step1: React.FC<any> = (props) => {
   const [errMess, setErrMess] = useState<string>('');
   const [mess, setMess] = useState<string>('');
 
-   
   return (
     <S.FormContent>
       <BaseForm.Item
@@ -40,7 +39,8 @@ export const Step1: React.FC<any> = (props) => {
       <BaseForm.Item
         name="startTime"
         label={'Thời gian khởi hành'}
-        rules={[{ required: true, message: 'Vui lòng nhập thời gian khởi hành!'}]}
+        rules={[{ required: true, message: 'Vui lòng nhập thời gian khởi hành!'}
+        ]}
       >
         <Picker format="DD-MM-YYYY HH:mm:ss" />
       </BaseForm.Item>
@@ -64,7 +64,9 @@ export const Step1: React.FC<any> = (props) => {
       <BaseForm.Item
         name="countSlot"
         label={"Số lượng chỗ"}
-        rules={[{ required: true, message: "Vui lòng điền vào!" }]}
+        rules={[{ required: true, message: "Vui lòng điền vào!" }, {
+          type: 'number', message: 'Vui nhập SL hợp lệ!'
+        }]}
       >
           <BaseInput />
       </BaseForm.Item>

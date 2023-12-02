@@ -301,6 +301,15 @@ export const editTrip = (payload : any): Promise<Response> => {
     })
   });
 };
+export const editStage = (payload : any): Promise<Response> => {
+  return new Promise((res, rej) => {
+    httpApi.post<Response>('api/stage/edit', { ...payload }).then(({ data }) => {
+      return res(data);
+    }).catch(err => {
+      return rej(err);
+    })
+  });
+};
 export const topDriver = (payload : any): Promise<Response> => {
   return new Promise((res, rej) => {
     httpApi.post<Response>('api/user/top', { ...payload }).then(({ data }) => {

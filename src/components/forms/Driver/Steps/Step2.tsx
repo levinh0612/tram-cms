@@ -24,8 +24,8 @@ export const Step2: React.FC = () => {
         rules={[{ required: true, message: t('common.requiredField') }]}
       >
         <BaseRadio.Group>
-          <BaseRadio.Button value="female" defaultChecked>{t('forms.stepFormLabels.female')}</BaseRadio.Button>
-          <BaseRadio.Button value="male">{t('forms.stepFormLabels.male')}</BaseRadio.Button>
+          <BaseRadio.Button value="female" defaultChecked>Nam</BaseRadio.Button>
+          <BaseRadio.Button value="male">Nữ</BaseRadio.Button>
         </BaseRadio.Group>
         {/* <BaseSelect placeholder={t('forms.stepFormLabels.gender')}>
           <Option value="male">{t('forms.stepFormLabels.male')}</Option>
@@ -35,21 +35,22 @@ export const Step2: React.FC = () => {
       <BaseForm.Item
         name="firstName"
         label={t('common.firstName')}
-        rules={[{ required: true, message: t('forms.stepFormLabels.firstNameError') }]}
+        rules={[{ required: true, message: 'Vui lòng nhập tên!' },{ max: 30, message: 'Tên tối đa là 30 ký tự!' }]}
       >
         <BaseInput />
       </BaseForm.Item>
       <BaseForm.Item
         name="lastName"
         label={t('common.lastName')}
-        rules={[{ required: true, message: t('forms.stepFormLabels.lastNameError') }]}
-      >
+        rules={[{ required: true, message: 'Vui lòng nhập họ!' },{ max: 20, message: 'họ tối đa là 20 ký tự!' }]}      >
         <BaseInput />
       </BaseForm.Item>
       <BaseForm.Item
         name="birthday"
         label={t('forms.stepFormLabels.birthday')}
-        rules={[{ required: true, message: t('forms.stepFormLabels.birthdayError') }]}
+        rules={[{ required: true, message: 'Vui lòng nhập ngày sinh!' },
+        {type: 'date', message: 'Vui lòng nhập ngày sinh hợp lệ!' }
+      ]}
       >
         <Picker format="DD-MM-YYYY" />
       </BaseForm.Item>

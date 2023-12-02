@@ -402,7 +402,7 @@ float: right;
         (modeCreate || modeUpdate) && (
           <BaseModal
             size='medium'
-            title={modeUpdate ? 'Cập nhật chặng xe' : 'Tạo chặng xe'}
+            title={modeUpdate ? 'Cập nhật tuyến xe' : 'Tạo tuyến xe'}
             centered
             open={modeCreate || modeUpdate}
             onCancel={() => {
@@ -414,7 +414,7 @@ float: right;
           // onOk={() => handleCreateUser()}
           // onCancel={() => setModeCreate(false)}
           >
-            <BaseCard id="car-form" title={'Điền thông tin chặng xe'} padding="1.25rem">
+            <BaseCard id="car-form" title={'Điền thông tin tuyến xe'} padding="1.25rem">
               <StepForm handleSuccessCreate={handleSuccessCreate} locationData={tableData?.locationData} handleSuccessUpdate={handleSuccessUpdate} newStage = {newStage} modeUpdate = {modeUpdate}/>
             </BaseCard>
           </BaseModal>
@@ -424,7 +424,7 @@ float: right;
         openDialogCreateTrip && (
           <BaseModal
             size='medium'
-            title={`Tạo chuyến xe cho chặng ${stageChoose.from_location_name} - ${stageChoose.to_location_name}`}
+            title={`Tạo chuyến xe cho tuyến ${stageChoose.from_location_name} - ${stageChoose.to_location_name}`}
             centered
             open={openDialogCreateTrip}
             onCancel={() => setOpenDialogCreateTrip(false)}
@@ -433,7 +433,7 @@ float: right;
           // onOk={() => handleCreateUser()}
           // onCancel={() => setModeCreate(false)}
           >
-            <BaseCard id="car-form" title={`Điền thông tin chuyến xe cho chặng ${stageChoose.from_location_name} - ${stageChoose.to_location_name}`} padding="1.25rem">
+            <BaseCard id="car-form" title={`Điền thông tin chuyến xe cho tuyến ${stageChoose.from_location_name} - ${stageChoose.to_location_name}`} padding="1.25rem">
               <TripStepForm handleSuccessCreate={handleSuccessCreateTrip} stageData={stageChoose}/>
             </BaseCard>
           </BaseModal>
