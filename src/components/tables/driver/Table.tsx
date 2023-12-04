@@ -227,7 +227,6 @@ float: right;
   };
 
   const columns: ColumnsType<DriverTableRow> = [
-    {title: 'Mã', dataIndex: 'key', width: 100},
     {
       title: 'Tên',
       dataIndex: 'name',
@@ -240,7 +239,7 @@ float: right;
               <BaseAvatar src={record?.image || urlDefaultImgDriver} alt="user avatar" size={mobileOnly ? 49 : 67} />
             </BaseCol>
             <BaseCol>
-              <p style={{ whiteSpace: 'nowrap' }}>{text || "Chưa có tên"}</p>
+              <p style={{ whiteSpace: 'nowrap' }}>#{record.key} {" | "}{text || "Chưa có tên"}</p>
             </BaseCol>
           </BaseRow>
         )
