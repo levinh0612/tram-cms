@@ -229,8 +229,8 @@ float: right;
   const columns: ColumnsType<DriverTableRow> = [
     {title: 'Mã', dataIndex: 'key', width: 100},
     {
-      title: t('common.name'),
-      dataIndex: 'Tên',
+      title: 'Tên',
+      dataIndex: 'name',
       width: 300,
       fixed: 'left',
       render: (text: string, record: DriverTableRow) => {
@@ -240,7 +240,7 @@ float: right;
               <BaseAvatar src={record?.image || urlDefaultImgDriver} alt="user avatar" size={mobileOnly ? 49 : 67} />
             </BaseCol>
             <BaseCol>
-              <p style={{ whiteSpace: 'nowrap' }}>{text}</p>
+              <p style={{ whiteSpace: 'nowrap' }}>{text || "Chưa có tên"}</p>
             </BaseCol>
           </BaseRow>
         )

@@ -176,8 +176,6 @@ float: right;
   const isEditing = (record: StageTableRow) => record.key === editingKey;
 
   const edit = (record: Partial<CarTableRow> & { key: React.Key }) => {
-    // form.setFieldsValue({ name: '', number_plate: '', ...record });
-    // setEditingKey(record.key);
     setNewStage(record)
     setModeUpdate(true)
   };
@@ -403,7 +401,7 @@ float: right;
         (modeCreate || modeUpdate) && (
           <BaseModal
             size='medium'
-            title={modeUpdate ? `Cập nhật tuyến xe #${newStage.id}` : 'Tạo tuyến xe'}
+            title={modeUpdate ? `Cập nhật tuyến xe #${newStage.key}` : 'Tạo tuyến xe'}
             centered
             open={modeCreate || modeUpdate}
             onCancel={() => {

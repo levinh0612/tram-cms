@@ -30,7 +30,6 @@ interface StepFormProps {
 
 export const StepForm: React.FC<StepFormProps> = (props) => {
   const { handleSuccessCreate, locationData, handleSuccessUpdate, newStage, modeUpdate } = props;
-  console.log("🚀 ~ file: StepForm.tsx:33 ~ newStage:", newStage)
   const [current, setCurrent] = useState(0);
   const [form] = BaseForm.useForm();
   const [price, setPrice] = useState<number>(0);
@@ -79,19 +78,20 @@ export const StepForm: React.FC<StepFormProps> = (props) => {
           payload[item.field] = item.value;
         }
       });
-        editStage({ ...payload, price: price, id: newStage.id }).then((res) => {
-        const rs = res.data;
-        if (isMounted.current) {
-          notificationController.success({
-            message: 'Chúc mừng bạn',
-            description: rs?.msg || "",
-          });
-          setIsLoading(false);
-          handleSuccessUpdate()
-        }
+        editStage({ ...payload, price: price, id: newStage.key })
+        .then((res) => {
+          const rs = res.data;
+          if (isMounted.current) {
+            notificationController.success({
+              message: 'Chúc mừng bạn',
+              description: rs?.msg || "",
+            });
+            setIsLoading(false);
+            handleSuccessUpdate()
+          }
       }).catch(err => {
-        setIsLoading(false);
         notificationController.error({ message: err.message || err });
+        setIsLoading(false);
       })
     } else {
       // Create an empty payload object
