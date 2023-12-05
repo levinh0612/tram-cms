@@ -23,7 +23,7 @@ export const PhoneItem: React.FC<PhoneItemsProps> = ({ required, onClick, verifi
         { required, message: t('common.requiredField') },
         () => ({
           validator(_, value) {
-            if (!value || isValidPhoneNumber(value)) {
+            if (!value || isValidPhoneNumber(value, 'VN')) {
               return Promise.resolve();
             }
             return Promise.reject(new Error(t('profile.nav.personalInfo.wrongNumber')));
@@ -31,7 +31,7 @@ export const PhoneItem: React.FC<PhoneItemsProps> = ({ required, onClick, verifi
         }),
       ]}
     >
-      <S.PhoneNumberInput disabled={verified} className="ant-input" onClick={onClick} />
+      <S.PhoneNumberInput disabled className="ant-input" onClick={onClick} />
     </BaseButtonsForm.Item>
   );
 };

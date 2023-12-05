@@ -27,7 +27,7 @@ export const EmailItem: React.FC<EmailItemProps> = ({ required, onClick, verifie
       ]}
       {...props}
     >
-      <BaseInput disabled={verified} onClick={onClick} />
+      <BaseInput disabled onClick={onClick} />
     </BaseButtonsForm.Item>
   );
 };

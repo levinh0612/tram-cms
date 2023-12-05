@@ -9,18 +9,18 @@ export const SexItem: React.FC = () => {
   const { t } = useTranslation();
 
   return (
-    <BaseButtonsForm.Item name="sex" label={t('profile.nav.personalInfo.sex')}>
-      <BaseSelect>
+    <BaseButtonsForm.Item name="sex" label={"Giới tính"}>
+      <BaseSelect disabled>
         <Option value="male">
           <BaseSpace align="center">
             <ManOutlined />
-            {t('profile.nav.personalInfo.male')}
+            Nữ
           </BaseSpace>
         </Option>
         <Option value="female">
           <BaseSpace align="center">
             <WomanOutlined />
-            {t('profile.nav.personalInfo.female')}
+           Nam
           </BaseSpace>
         </Option>
       </BaseSelect>

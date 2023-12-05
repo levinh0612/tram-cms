@@ -41,7 +41,7 @@ export interface LoginResponse {
 }
 
 export const login = (loginPayload: LoginRequest): Promise<LoginResponse> =>
-  httpApi.post<LoginResponse>('api/auth/login', { ...loginPayload }).then(({ data }) => {
+  httpApi.post<LoginResponse>('api/auth/login', { ...loginPayload, platform: "web" }).then(({ data }) => {
     return data;
   });
 

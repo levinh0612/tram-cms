@@ -7,8 +7,8 @@ export const NicknameItem: React.FC = () => {
   const { t } = useTranslation();
 
   return (
-    <BaseButtonsForm.Item name="nickname" label={t('profile.nav.personalInfo.nickname')}>
-      <BaseInput />
+    <BaseButtonsForm.Item name="nickname" label={"Tên đăng nhập"} >
+      <BaseInput disabled/>
     </BaseButtonsForm.Item>
   );
 };

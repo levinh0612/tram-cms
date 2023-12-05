@@ -8,7 +8,7 @@ export const AddressItem: React.FC<{ number: number }> = ({ number }) => {
 
   return (
     <BaseButtonsForm.Item name={`address${number}`} label={`${t('common.address')} ${number}`}>
-      <BaseInput />
+      <BaseInput disabled/>
     </BaseButtonsForm.Item>
   );
 };

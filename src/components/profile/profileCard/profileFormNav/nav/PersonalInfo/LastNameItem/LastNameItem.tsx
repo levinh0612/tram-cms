@@ -8,7 +8,7 @@ export const LastNameItem: React.FC = () => {
 
   return (
     <BaseButtonsForm.Item name="lastName" label={t('common.lastName')}>
-      <BaseInput />
+      <BaseInput disabled/>
     </BaseButtonsForm.Item>
   );
 };
