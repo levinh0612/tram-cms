@@ -141,6 +141,13 @@ float: right;
 
   useEffect(() => {
     fetch(initialPagination);
+         // Set up an interval to run the fetch every 10 seconds
+         const intervalId = setInterval(() => {
+          fetch(tableData.pagination);
+        }, 10000);
+    
+        // Clean up the interval when the component is unmounted or when the dependency array changes
+        return () => clearInterval(intervalId);
   }, [fetch]);
 
   const handleTableChange = (pagination: Pagination) => {
